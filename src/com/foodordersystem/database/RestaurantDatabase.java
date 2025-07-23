@@ -35,13 +35,16 @@ public class RestaurantDatabase {
     }
 
     /**
-     * Adds a new restaurant or updates an existing one based on the owner's username.
+     * Adds a new restaurant or updates an existing one.
+     * A restaurant is uniquely identified by the combination of its name and owner.
      *
      * @param restaurant The restaurant to add or update.
      */
     public void addRestaurant(Restaurant restaurant) {
-        // Find and remove the old version of the restaurant to ensure it's updated
-        restaurants.removeIf(r -> r.getOwnerUsername().equals(restaurant.getOwnerUsername()));
+        // FIX: Identify the restaurant by its name AND owner to allow for updates
+        // without deleting other restaurants from the same owner.
+        restaurants.removeIf(r -> r.getOwnerUsername().equals(restaurant.getOwnerUsername())
+                && r.getName().equals(restaurant.getName()));
         restaurants.add(restaurant);
         saveRestaurants();
     }

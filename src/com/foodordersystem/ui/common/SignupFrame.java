@@ -4,7 +4,6 @@ import com.foodordersystem.database.UserDatabase;
 import com.foodordersystem.model.entities.User;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 
@@ -22,69 +21,63 @@ public class SignupFrame extends BaseFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Custom panel with a gradient background
-        GradientPanel backgroundPanel = new GradientPanel(new Color(255, 102, 0), Color.WHITE);
-        backgroundPanel.setLayout(new GridBagLayout());
+        // Use ImagePanel as the content pane for the background
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/SignUpFrameBg.png", 1.0f);
+        backgroundPanel.setLayout(new GridBagLayout()); // To center the form
         setContentPane(backgroundPanel);
 
-        // Form panel with a background image and border
-        ImagePanel formPanel = new ImagePanel("/com/foodordersystem/Resources/Logo.png", 0.08f);
-        formPanel.setLayout(new GridBagLayout());
+        // Panel to hold the form components, made transparent
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setOpaque(false);
         formPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(220, 220, 220), 1), "Create Your Account",
-                TitledBorder.CENTER, TitledBorder.TOP, new Font("Arial", Font.BOLD, 18), new Color(50, 50, 50)));
-
+                BorderFactory.createLineBorder(Color.WHITE, 1), "Create Your Account",
+                TitledBorder.CENTER, TitledBorder.TOP, new Font("DialogInput", Font.BOLD, 20), Color.WHITE));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Form fields styling
+        // --- Form Fields ---
         Font labelFont = new Font("Arial", Font.BOLD, 14);
-        Font fieldFont = new Font("Arial", Font.PLAIN, 14);
-        Color textColor = new Color(50, 50, 50);
+        Color labelColor = Color.WHITE;
 
-        // Form fields
-        gbc.gridx = 0; gbc.gridy = 0; formPanel.add(createLabel("Name:", labelFont, textColor), gbc);
-        JTextField nameField = createTextField(fieldFont); gbc.gridx = 1; formPanel.add(nameField, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 1; formPanel.add(createLabel("Date of Birth (DD-MM-YYYY):", labelFont, textColor), gbc);
-        JTextField dobField = createTextField(fieldFont); gbc.gridx = 1; formPanel.add(dobField, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 2; formPanel.add(createLabel("Mobile Number:", labelFont, textColor), gbc);
-        JTextField mobileField = createTextField(fieldFont); gbc.gridx = 1; formPanel.add(mobileField, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 3; formPanel.add(createLabel("Username:", labelFont, textColor), gbc);
-        JTextField usernameField = createTextField(fieldFont); gbc.gridx = 1; formPanel.add(usernameField, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 4; formPanel.add(createLabel("Password:", labelFont, textColor), gbc);
-        JPasswordField passwordField = createPasswordField(fieldFont); gbc.gridx = 1; formPanel.add(passwordField, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 5; formPanel.add(createLabel("Address:", labelFont, textColor), gbc);
-        JTextField addressField = createTextField(fieldFont); gbc.gridx = 1; formPanel.add(addressField, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 6; formPanel.add(createLabel("Role:", labelFont, textColor), gbc);
+        // All fields are created and added directly
+        JTextField nameField = new JTextField(20);
+        JTextField dobField = new JTextField(20);
+        JTextField mobileField = new JTextField(20);
+        JTextField usernameField = new JTextField(20);
+        JPasswordField passwordField = new JPasswordField(20);
+        JTextField addressField = new JTextField(20);
         JComboBox<String> roleComboBox = new JComboBox<>(new String[]{"Customer", "Rider", "Restaurant Owner"});
-        roleComboBox.setFont(fieldFont);
-        gbc.gridx = 1; formPanel.add(roleComboBox, gbc);
 
-        // Buttons
+        // Add labels and fields to the panel
+        addField(formPanel, gbc, 0, "Name:", new JLabel(), nameField, labelFont, labelColor);
+        addField(formPanel, gbc, 1, "Date of Birth (DD-MM-YYYY):", new JLabel(), dobField, labelFont, labelColor);
+        addField(formPanel, gbc, 2, "Mobile Number:", new JLabel(), mobileField, labelFont, labelColor);
+        addField(formPanel, gbc, 3, "Username:", new JLabel(), usernameField, labelFont, labelColor);
+        addField(formPanel, gbc, 4, "Password:", new JLabel(), passwordField, labelFont, labelColor);
+        addField(formPanel, gbc, 5, "Address:", new JLabel(), addressField, labelFont, labelColor);
+        addField(formPanel, gbc, 6, "Role:", new JLabel(), roleComboBox, labelFont, labelColor);
+
+        // --- Buttons ---
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonPanel.setOpaque(false);
         JButton signupButton = new JButton("Sign Up");
         JButton backButton = new JButton("Back");
-        styleButton(signupButton, new Font("Arial", Font.BOLD, 16), new Dimension(120, 40), new Color(255, 102, 0), Color.WHITE);
-        styleButton(backButton, new Font("Arial", Font.BOLD, 16), new Dimension(120, 40), new Color(128, 128, 128), Color.WHITE);
-
+        styleButton(signupButton, new Font("DialogInput", Font.BOLD, 12), new Dimension(100, 30), new Color(255, 102, 0), Color.WHITE);
+        styleButton(backButton, new Font("DialogInput", Font.BOLD, 12), new Dimension(100, 30), Color.BLACK, Color.WHITE);
         buttonPanel.add(signupButton);
         buttonPanel.add(backButton);
 
-        gbc.gridx = 0; gbc.gridy = 7; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.CENTER;
+        gbc.gridx = 0;
+        gbc.gridy = 7;
+        gbc.gridwidth = 2;
         formPanel.add(buttonPanel, gbc);
 
-        backgroundPanel.add(formPanel, new GridBagConstraints());
+        // Add the transparent form panel to the background
+        add(formPanel, new GridBagConstraints());
 
-
+        // --- Action Listeners ---
         signupButton.addActionListener(e -> {
             String name = nameField.getText();
             String dob = dobField.getText();
@@ -103,8 +96,7 @@ public class SignupFrame extends BaseFrame {
                 JOptionPane.showMessageDialog(this, "Username is already taken!", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
                 userDatabase.addUser(new User(name, dob, mobile, username, password, address, role));
-                JOptionPane.showMessageDialog(this, "Signup successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                new LoginFrame().setVisible(true);
+                new LoginFrame(role).setVisible(true);
                 dispose();
             }
         });
@@ -115,84 +107,29 @@ public class SignupFrame extends BaseFrame {
         });
     }
 
-    private JLabel createLabel(String text, Font font, Color color) {
-        JLabel label = new JLabel(text);
+    /**
+     * Helper method to add a labeled component to the form.
+     */
+    private void addField(JPanel panel, GridBagConstraints gbc, int yPos, String labelText, JLabel label, Component component, Font font, Color color) {
+        label.setText(labelText);
         label.setFont(font);
         label.setForeground(color);
-        return label;
+        gbc.gridx = 0;
+        gbc.gridy = yPos;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(label, gbc);
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(component, gbc);
     }
-
-    private JTextField createTextField(Font font) {
-        JTextField textField = new JTextField(20);
-        textField.setFont(font);
-        textField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-        return textField;
-    }
-
-    private JPasswordField createPasswordField(Font font) {
-        JPasswordField passwordField = new JPasswordField(20);
-        passwordField.setFont(font);
-        passwordField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-        return passwordField;
-    }
-
     private void styleButton(JButton button, Font font, Dimension size, Color bgColor, Color fgColor) {
         button.setFont(font);
         button.setPreferredSize(size);
         button.setBackground(bgColor);
         button.setForeground(fgColor);
-        button.setFocusPainted(false);
         button.setBorderPainted(false);
+        button.setFocusPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 }
 
-class GradientPanel extends JPanel {
-    private final Color color1;
-    private final Color color2;
-
-    public GradientPanel(Color color1, Color color2) {
-        this.color1 = color1;
-        this.color2 = color2;
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
-        int width = getWidth();
-        int height = getHeight();
-        GradientPaint gp = new GradientPaint(0, 0, color1, 0, height, color2);
-        g2d.setPaint(gp);
-        g2d.fillRect(0, 0, width, height);
-    }
-}
-
-class ImagePanel extends JPanel {
-    private Image backgroundImage;
-    private float opacity;
-
-    public ImagePanel(String imagePath, float opacity) {
-        try {
-            this.backgroundImage = new ImageIcon(getClass().getResource(imagePath)).getImage();
-            this.opacity = opacity;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        if (backgroundImage != null) {
-            Graphics2D g2d = (Graphics2D) g.create();
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
-            g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-            g2d.dispose();
-        }
-    }
-}

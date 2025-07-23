@@ -15,105 +15,83 @@ public class LandingPage extends BaseFrame {
     protected void initComponents() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new GridBagLayout());
-        getContentPane().setBackground(Color.WHITE); // Set a white background
+
+        // Set a custom panel with a background image as the content pane
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/LandingPageBg.png", 1.0f);
+        backgroundPanel.setLayout(new GridBagLayout()); // Center the content
+        setContentPane(backgroundPanel);
+
 
         // Panel to hold the main content
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
-        mainPanel.setBackground(Color.WHITE); // Match frame background
+        // Make the panel's background transparent to show the frame's background
+        mainPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.CENTER;
-
-        // Add and resize the logo
-        ImageIcon logoIcon = new ImageIcon(getClass().getResource("/com/foodordersystem/Resources/Logo.png"));
-        Image image = logoIcon.getImage();
-        Image newimg = image.getScaledInstance(265,265,  java.awt.Image.SCALE_SMOOTH);
-        logoIcon = new ImageIcon(newimg);
-        JLabel logoLabel = new JLabel(logoIcon);
-        mainPanel.add(logoLabel, gbc);
-
 
         // Welcome Label
         JLabel welcomeLabel = new JLabel("Welcome to DuBites", SwingConstants.CENTER);
         welcomeLabel.setFont(new Font("DialogInput", Font.BOLD, 24));
+        // Set the text color to white to be visible on the dark background
+        welcomeLabel.setForeground(Color.WHITE);
         mainPanel.add(welcomeLabel, gbc);
 
         // Add some space between the welcome label and buttons
         mainPanel.add(Box.createRigidArea(new Dimension(0, 8)), gbc);
 
+        // --- Button Panel ---
+        // Create a new panel for the buttons to place them side-by-side
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        buttonPanel.setOpaque(false); // Make the panel transparent
+
         // Button styling
         Font buttonFont = new Font("DialogInput", Font.BOLD, 18);
-        Dimension buttonSize = new Dimension(220, 50);
-        Color buttonBorderColor = new Color(255, 102, 0); // Orange color for the border
-        Color buttonTextColor = new Color(255, 102, 0); // Orange color for the text
-
+        Dimension buttonSize = new Dimension(150, 50); // Adjusted size for side-by-side layout
+        Color buttonBgColor = Color.BLACK;
+        Color buttonFgColor = Color.WHITE;
 
         // Buttons
         JButton loginButton = new JButton("Login");
-        styleButton(loginButton, buttonFont, buttonSize, buttonBorderColor, buttonTextColor, 3); // Added thickness
+        styleButton(loginButton, buttonFont, buttonSize, buttonBgColor, buttonFgColor, 1);
         loginButton.addActionListener(e -> {
             new RoleSelectionFrame().setVisible(true);
             dispose();
         });
 
         JButton signUpButton = new JButton("Sign Up");
-        styleButton(signUpButton, buttonFont, buttonSize, buttonBorderColor, buttonTextColor, 3); // Added thickness
+        styleButton(signUpButton, buttonFont, buttonSize, buttonBgColor, buttonFgColor, 1);
         signUpButton.addActionListener(e -> {
             new SignupFrame().setVisible(true);
             dispose();
         });
 
-        mainPanel.add(loginButton, gbc);
-        mainPanel.add(Box.createRigidArea(new Dimension(0, 0)), gbc); // Space between buttons
-        mainPanel.add(signUpButton, gbc);
+        // Add buttons to the button panel
+        buttonPanel.add(loginButton);
+        buttonPanel.add(signUpButton);
 
-        // Add the main panel to the frame
-        add(mainPanel);
+        // Add the button panel to the main panel
+        mainPanel.add(buttonPanel, gbc);
+
+        // Add the main panel to the frame, positioned at the bottom center
+        GridBagConstraints mainPanelGbc = new GridBagConstraints();
+        mainPanelGbc.anchor = GridBagConstraints.SOUTH;
+        mainPanelGbc.weighty = 1.0; // Push the panel to the bottom
+        mainPanelGbc.insets = new Insets(0, 0, 50, 0); // Add some padding from the bottom
+        add(mainPanel, mainPanelGbc);
     }
 
-    private void styleButton(JButton button, Font font, Dimension size, Color borderColor, Color fgColor, int thickness) {
+    private void styleButton(JButton button, Font font, Dimension size, Color bgColor, Color fgColor, int thickness) {
         button.setFont(font);
         button.setPreferredSize(size);
         button.setForeground(fgColor);
-        button.setBackground(Color.WHITE);
+        button.setBackground(bgColor);
         button.setFocusPainted(false);
-        button.setBorder(new RoundEdgedBorder(borderColor, 20, thickness)); // Use a custom rounded border with thickness
-        button.setContentAreaFilled(false);
+        button.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, thickness));
+        button.setContentAreaFilled(true);
         button.setOpaque(true);
-    }
-}
-
-class RoundEdgedBorder implements Border {
-    private final Color color;
-    private final int radius;
-    private final int thickness;
-
-    public RoundEdgedBorder(Color color, int radius, int thickness) {
-        this.color = color;
-        this.radius = radius;
-        this.thickness = thickness;
-    }
-
-    @Override
-    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-        Graphics2D g2d = (Graphics2D) g.create();
-        g2d.setColor(color);
-        g2d.setStroke(new BasicStroke(thickness)); // Set the border thickness
-        g2d.drawRoundRect(x, y, width - 1, height - 1, radius, radius);
-        g2d.dispose();
-    }
-
-    @Override
-    public Insets getBorderInsets(Component c) {
-        return new Insets(this.radius + thickness, this.radius + thickness, this.radius + thickness, this.radius + thickness);
-    }
-
-    @Override
-    public boolean isBorderOpaque() {
-        return true;
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 }

@@ -11,10 +11,12 @@ import java.awt.*;
 
 public class LoginFrame extends BaseFrame {
     private final UserDatabase userDatabase;
+    private final String role;
 
-    public LoginFrame() {
+    public LoginFrame(String role) {
         super("Login", 800, 600);
         this.userDatabase = new UserDatabase();
+        this.role = role;
         initComponents();
     }
 
@@ -25,7 +27,7 @@ public class LoginFrame extends BaseFrame {
         setLocationRelativeTo(null);
 
         // Set a custom panel with a background image as the content pane
-        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/LoginFrameBg.jpg", 0.7f); // Opacity reduced
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/LoginFrameBg.png", 1.0f); // Opacity reduced
         backgroundPanel.setLayout(new GridBagLayout()); // Center the content
         setContentPane(backgroundPanel);
 
@@ -33,10 +35,10 @@ public class LoginFrame extends BaseFrame {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false); // Make panel transparent
         panel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.BLACK, 2), "Login",
+                BorderFactory.createLineBorder(Color.WHITE, 2), "Login as " + role,
                 javax.swing.border.TitledBorder.CENTER,
                 javax.swing.border.TitledBorder.TOP,
-                new Font("DialogInput", Font.BOLD, 20), Color.BLACK));
+                new Font("DialogInput", Font.BOLD, 20), Color.WHITE));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
@@ -73,10 +75,10 @@ public class LoginFrame extends BaseFrame {
         buttonPanel.setOpaque(false); // Make button panel transparent
 
         JButton loginButton = new RoundedButton("Login");
-        styleButton(loginButton, new Font("DialogInput", Font.BOLD, 14), new Dimension(100, 40), new Color(255, 255, 255), Color.BLACK);
+        styleButton(loginButton, new Font("DialogInput", Font.BOLD, 14), new Dimension(100, 40), Color.DARK_GRAY, Color.WHITE);
 
         JButton backButton = new RoundedButton("Back");
-        styleButton(backButton, new Font("DialogInput", Font.BOLD, 14), new Dimension(100, 40), new Color(255, 255, 255), Color.BLACK);
+        styleButton(backButton, new Font("DialogInput", Font.BOLD, 14), new Dimension(100, 40), Color.DARK_GRAY, Color.WHITE);
 
         buttonPanel.add(loginButton);
         buttonPanel.add(backButton);
@@ -94,10 +96,9 @@ public class LoginFrame extends BaseFrame {
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
-            User user = userDatabase.findUserByUsername(username);
+            User user = userDatabase.findUser(username, password, this.role);
 
-            if (user != null && user.getPassword().equals(password)) {
-                JOptionPane.showMessageDialog(this, "Login successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            if (user != null) {
                 switch (user.getRole()) {
                     case "Customer":
                         new RestaurantSelectionFrame(user).setVisible(true);
@@ -111,7 +112,7 @@ public class LoginFrame extends BaseFrame {
                 }
                 dispose();
             } else {
-                JOptionPane.showMessageDialog(this, "Invalid username or password", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Invalid credentials", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -131,56 +132,3 @@ public class LoginFrame extends BaseFrame {
     }
 }
 
-/**
- * A custom JButton class to create buttons with rounded corners.
- */
-class RoundedButton1 extends JButton {
-    public RoundedButton1(String text) {
-        super(text);
-        setContentAreaFilled(false);
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        if (getModel().isArmed()) {
-            g.setColor(getBackground().darker());
-        } else {
-            g.setColor(getBackground());
-        }
-        g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
-        super.paintComponent(g);
-    }
-
-    @Override
-    protected void paintBorder(Graphics g) {
-        // No border is painted to keep the rounded look clean
-    }
-}
-
-/**
- * A custom JPanel that draws a background image with a specified opacity.
- */
-class ImagePanel2 extends JPanel {
-    private Image backgroundImage;
-    private float opacity;
-
-    public ImagePanel2(String imagePath, float opacity) {
-        try {
-            this.backgroundImage = new ImageIcon(getClass().getResource(imagePath)).getImage();
-            this.opacity = opacity;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        if (backgroundImage != null) {
-            Graphics2D g2d = (Graphics2D) g.create();
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
-            g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-            g2d.dispose();
-        }
-    }
-}

@@ -10,7 +10,7 @@ public class Order implements Serializable {
     private final String orderId;
     private final List<MenuItem> menuItems;
     private double subTotal;
-    private double delivaryCharge;
+    private double deliveryCharge; // Typo corrected
     private double total;
     private String status;
     private String riderUsername;
@@ -19,7 +19,6 @@ public class Order implements Serializable {
     private final String customerUsername;
     private final String customerAddress;
 
-    // FIX: The constructor now accepts full Restaurant and User objects
     public Order(List<MenuItem> menuItems, Restaurant restaurant, User customer) {
         this.orderId = UUID.randomUUID().toString();
         this.menuItems = menuItems;
@@ -37,18 +36,17 @@ public class Order implements Serializable {
                 subTotal += item.getCost();
             }
         }
-        delivaryCharge = getDelivaryCharge();
-        total = subTotal + delivaryCharge;
+        // Assuming a fixed delivery charge for now
+        deliveryCharge = 15.00; // Typo corrected
+        total = subTotal + deliveryCharge;
     }
-
-    // --- Getters and Setters ---
 
     public double getSubTotal() {
         return subTotal;
     }
 
-    public double getDelivaryCharge() {
-        return delivaryCharge;
+    public double getDeliveryCharge() { // Typo corrected
+        return deliveryCharge;
     }
 
     public double getTotal() {

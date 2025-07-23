@@ -16,7 +16,7 @@ public class RoleSelectionFrame extends BaseFrame {
         setLocationRelativeTo(null);
 
         // Use the custom ImagePanel as the content pane for the background effect
-        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/Logo.png", 0.1f);
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/RoleSelectionFrameBg.png", 1.0f);
         backgroundPanel.setLayout(new GridBagLayout());
         setContentPane(backgroundPanel);
 
@@ -43,28 +43,28 @@ public class RoleSelectionFrame extends BaseFrame {
         Dimension regularButtonSize = new Dimension(250, 50);
         Dimension backButtonSize = new Dimension(150, 40); // Smaller size for the back button
         Color buttonColor = new Color(255, 102, 0);
-        Color backButtonColor = new Color(128, 128, 128);
+        Color backButtonColor = new Color(49, 49, 49);
         Color buttonTextColor = Color.WHITE;
 
         // Create and style the buttons
         JButton customerButton = new RoundedButton("Customer");
         styleButton(customerButton, buttonFont, regularButtonSize, buttonColor, buttonTextColor);
         customerButton.addActionListener(e -> {
-            new LoginFrame().setVisible(true);
+            new LoginFrame("Customer").setVisible(true);
             dispose();
         });
 
         JButton riderButton = new RoundedButton("Rider");
         styleButton(riderButton, buttonFont, regularButtonSize, buttonColor, buttonTextColor);
         riderButton.addActionListener(e -> {
-            new LoginFrame().setVisible(true);
+            new LoginFrame("Rider").setVisible(true);
             dispose();
         });
 
         JButton ownerButton = new RoundedButton("Restaurant Owner");
         styleButton(ownerButton, buttonFont, regularButtonSize, buttonColor, buttonTextColor);
         ownerButton.addActionListener(e -> {
-            new LoginFrame().setVisible(true);
+            new LoginFrame("Restaurant Owner").setVisible(true);
             dispose();
         });
 
@@ -101,57 +101,3 @@ public class RoleSelectionFrame extends BaseFrame {
     }
 }
 
-/**
- * A custom JButton class to create buttons with rounded corners.
- */
-class RoundedButton extends JButton {
-    public RoundedButton(String text) {
-        super(text);
-        setContentAreaFilled(false);
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        if (getModel().isArmed()) {
-            g.setColor(getBackground().darker());
-        } else {
-            g.setColor(getBackground());
-        }
-        g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
-        super.paintComponent(g);
-    }
-
-    @Override
-    protected void paintBorder(Graphics g) {
-        // No border is painted to keep the rounded look clean
-    }
-}
-
-/**
- * A custom JPanel that draws a background image with a specified opacity.
- * This class is added here to make the file self-contained.
- */
-class ImagePanel1 extends JPanel {
-    private Image backgroundImage;
-    private float opacity;
-
-    public ImagePanel1(String imagePath, float opacity) {
-        try {
-            this.backgroundImage = new ImageIcon(getClass().getResource(imagePath)).getImage();
-            this.opacity = opacity;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        if (backgroundImage != null) {
-            Graphics2D g2d = (Graphics2D) g.create();
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
-            g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-            g2d.dispose();
-        }
-    }
-}
