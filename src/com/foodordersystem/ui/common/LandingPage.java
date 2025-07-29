@@ -1,7 +1,6 @@
 package com.foodordersystem.ui.common;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 
 public class LandingPage extends BaseFrame {
@@ -32,37 +31,27 @@ public class LandingPage extends BaseFrame {
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.anchor = GridBagConstraints.CENTER;
 
-        // Welcome Label
-        JLabel welcomeLabel = new JLabel("Welcome to DuBites", SwingConstants.CENTER);
-        welcomeLabel.setFont(new Font("DialogInput", Font.BOLD, 24));
-        // Set the text color to white to be visible on the dark background
-        welcomeLabel.setForeground(Color.WHITE);
-        mainPanel.add(welcomeLabel, gbc);
-
-        // Add some space between the welcome label and buttons
-        mainPanel.add(Box.createRigidArea(new Dimension(0, 8)), gbc);
-
         // --- Button Panel ---
         // Create a new panel for the buttons to place them side-by-side
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 0, 10));
         buttonPanel.setOpaque(false); // Make the panel transparent
 
         // Button styling
         Font buttonFont = new Font("DialogInput", Font.BOLD, 18);
-        Dimension buttonSize = new Dimension(150, 50); // Adjusted size for side-by-side layout
-        Color buttonBgColor = Color.BLACK;
-        Color buttonFgColor = Color.WHITE;
+        Dimension buttonSize = new Dimension(250, 50);
+        Color buttonBgColor = Color.WHITE;
+        Color buttonFgColor = Color.BLACK;
 
         // Buttons
-        JButton loginButton = new JButton("Login");
-        styleButton(loginButton, buttonFont, buttonSize, buttonBgColor, buttonFgColor, 1);
+        JButton loginButton = new RoundedButton("Login");
+        styleButton(loginButton, buttonFont, buttonSize, buttonBgColor, buttonFgColor);
         loginButton.addActionListener(e -> {
             new RoleSelectionFrame().setVisible(true);
             dispose();
         });
 
-        JButton signUpButton = new JButton("Sign Up");
-        styleButton(signUpButton, buttonFont, buttonSize, buttonBgColor, buttonFgColor, 1);
+        JButton signUpButton = new RoundedButton("Sign Up");
+        styleButton(signUpButton, buttonFont, buttonSize, buttonBgColor, buttonFgColor);
         signUpButton.addActionListener(e -> {
             new SignupFrame().setVisible(true);
             dispose();
@@ -75,23 +64,18 @@ public class LandingPage extends BaseFrame {
         // Add the button panel to the main panel
         mainPanel.add(buttonPanel, gbc);
 
-        // Add the main panel to the frame, positioned at the bottom center
+        // Add the main panel to the frame, positioned to appear underneath the logo
         GridBagConstraints mainPanelGbc = new GridBagConstraints();
-        mainPanelGbc.anchor = GridBagConstraints.SOUTH;
-        mainPanelGbc.weighty = 1.0; // Push the panel to the bottom
-        mainPanelGbc.insets = new Insets(0, 0, 50, 0); // Add some padding from the bottom
+        mainPanelGbc.anchor = GridBagConstraints.CENTER;
+        mainPanelGbc.insets = new Insets(250, 0, 0, 0); // Adjust top inset to position below logo
         add(mainPanel, mainPanelGbc);
     }
 
-    private void styleButton(JButton button, Font font, Dimension size, Color bgColor, Color fgColor, int thickness) {
+    private void styleButton(JButton button, Font font, Dimension size, Color bgColor, Color fgColor) {
         button.setFont(font);
         button.setPreferredSize(size);
-        button.setForeground(fgColor);
         button.setBackground(bgColor);
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, thickness));
-        button.setContentAreaFilled(true);
-        button.setOpaque(true);
+        button.setForeground(fgColor);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 }

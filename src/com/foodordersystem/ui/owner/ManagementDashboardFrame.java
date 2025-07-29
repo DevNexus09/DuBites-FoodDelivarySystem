@@ -3,65 +3,98 @@ package com.foodordersystem.ui.owner;
 import com.foodordersystem.database.RestaurantDatabase;
 import com.foodordersystem.database.UserDatabase;
 import com.foodordersystem.model.entities.MenuItem;
-import com.foodordersystem.model.history.OrderHistory;
 import com.foodordersystem.model.entities.Restaurant;
 import com.foodordersystem.model.entities.User;
 import com.foodordersystem.ui.common.BaseFrame;
-import com.foodordersystem.ui.common.RoleSelectionFrame;
+import com.foodordersystem.ui.common.ImagePanel;
+import com.foodordersystem.ui.common.RoundedButton;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ManagementDashboardFrame extends BaseFrame {
     private final Restaurant restaurant;
     private final RestaurantDatabase restaurantDatabase;
-    private DefaultListModel<String> menuListModel;
-    private JList<String> menuJList;
+    private DefaultTableModel menuTableModel;
+    private JTable menuTable;
+    private CardLayout cardLayout;
+    private JPanel contentPanel;
+    private final List<JButton> navButtons = new ArrayList<>();
 
     public ManagementDashboardFrame(Restaurant restaurant) {
-        super("Management Dashboard: " + restaurant.getName(), 800, 600);
+        super("Management Dashboard: " + restaurant.getName(), 1200, 750);
         this.restaurant = restaurant;
         this.restaurantDatabase = new RestaurantDatabase();
         initComponents();
-        refreshMenuList();
+        refreshMenuTable();
     }
 
     protected void initComponents() {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout(10, 10));
 
-        // --- Menu Management Panel ---
-        JPanel menuManagementPanel = new JPanel(new BorderLayout());
-        menuManagementPanel.setBorder(BorderFactory.createTitledBorder("Menu Management"));
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/ManagementDashboardFrameBg.png", 1.0f);
+        backgroundPanel.setLayout(new BorderLayout());
+        setContentPane(backgroundPanel);
 
-        menuListModel = new DefaultListModel<>();
-        menuJList = new JList<>(menuListModel);
-        menuManagementPanel.add(new JScrollPane(menuJList), BorderLayout.CENTER);
+        JPanel navPanel = createNavPanel();
+        backgroundPanel.add(navPanel, BorderLayout.WEST);
 
-        JPanel menuActionPanel = new JPanel(new FlowLayout());
-        JButton addButton = new JButton("Add Item");
-        JButton deleteButton = new JButton("Delete Selected Item");
-        JButton updateButton = new JButton("Update Selected Item Price");
-        JButton backButton = new JButton("Back to Dashboard");
+        contentPanel = new JPanel();
+        cardLayout = new CardLayout(20, 20);
+        contentPanel.setLayout(cardLayout);
+        contentPanel.setOpaque(false);
 
-        menuActionPanel.add(addButton);
-        menuActionPanel.add(deleteButton);
-        menuActionPanel.add(updateButton);
-        menuActionPanel.add(backButton);
-        menuManagementPanel.add(menuActionPanel, BorderLayout.SOUTH);
+        JPanel dashboardPage = new DashboardPanel(restaurant);
+        dashboardPage.setOpaque(false);
 
-        // --- Sales History Panel ---
-        JPanel salesHistoryPanel = new JPanel(new BorderLayout());
-        salesHistoryPanel.setBorder(BorderFactory.createTitledBorder("Weekly Sales and Order History"));
-        JTextArea salesHistoryArea = new JTextArea();
-        salesHistoryArea.setEditable(false);
-        salesHistoryPanel.add(new JScrollPane(salesHistoryArea), BorderLayout.CENTER);
+        JPanel menuManagementPage = createMenuManagementPanel();
+        menuManagementPage.setOpaque(false);
 
-        // Add action listeners
-        addButton.addActionListener(e -> addItem());
-        deleteButton.addActionListener(e -> deleteItem());
-        updateButton.addActionListener(e -> updateItemPrice());
+        contentPanel.add(dashboardPage, "Dashboard");
+        contentPanel.add(menuManagementPage, "Menu Management");
+
+        backgroundPanel.add(contentPanel, BorderLayout.CENTER);
+
+        cardLayout.show(contentPanel, "Dashboard");
+        updateNavButtonSelection(navButtons.get(0));
+    }
+
+    private JPanel createNavPanel() {
+        JPanel navPanel = new JPanel();
+        navPanel.setLayout(new GridBagLayout());
+        navPanel.setOpaque(false);
+        navPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
+        navPanel.setBackground(new Color(0, 0, 0, 180));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10, 5, 10, 5);
+        gbc.weightx = 1.0;
+
+        String[] navItems = {"Dashboard", "Menu Management"};
+        for (String item : navItems) {
+            JButton navButton = createNavButton(item);
+            navButtons.add(navButton);
+            navButton.addActionListener(e -> {
+                cardLayout.show(contentPanel, item);
+                updateNavButtonSelection(navButton);
+            });
+            navPanel.add(navButton, gbc);
+        }
+
+        gbc.weighty = 1.0;
+        navPanel.add(new JLabel(), gbc);
+        gbc.weighty = 0;
+
+        JButton backButton = new RoundedButton("Back to Owner Hub");
+        styleButton(backButton);
         backButton.addActionListener(e -> {
             User owner = new UserDatabase().findUserByUsername(restaurant.getOwnerUsername());
             if (owner != null) {
@@ -69,72 +102,182 @@ public class ManagementDashboardFrame extends BaseFrame {
                 dispose();
             }
         });
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.CENTER;
+        navPanel.add(backButton, gbc);
 
-
-        // Load and display sales history
-        OrderHistory.loadOrderHistory(salesHistoryArea, restaurant.getName());
-
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, menuManagementPanel, salesHistoryPanel);
-        splitPane.setResizeWeight(0.7);
-        add(splitPane, BorderLayout.CENTER);
+        return navPanel;
     }
 
-    private void refreshMenuList() {
-        menuListModel.clear();
+    private JPanel createMenuManagementPanel() {
+        JPanel menuManagementPanel = new JPanel(new BorderLayout(20, 20));
+        menuManagementPanel.setOpaque(false);
+        menuManagementPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JLabel title = new JLabel("Menu Management", SwingConstants.CENTER);
+        title.setFont(new Font("DialogInput", Font.BOLD, 28));
+        title.setForeground(Color.WHITE);
+        menuManagementPanel.add(title, BorderLayout.NORTH);
+
+        menuTableModel = new DefaultTableModel(new Object[]{"Item Name", "Price (Bdt)"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        menuTable = new JTable(menuTableModel);
+        styleTable(menuTable);
+
+        JScrollPane scrollPane = new JScrollPane(menuTable);
+        styleScrollPane(scrollPane);
+        menuManagementPanel.add(scrollPane, BorderLayout.CENTER);
+
+        JPanel menuActionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        menuActionPanel.setOpaque(false);
+        JButton addButton = new RoundedButton("Add New Item");
+        JButton deleteButton = new RoundedButton("Delete Selected Item");
+        JButton updateButton = new RoundedButton("Update Item Price");
+        styleButton(addButton);
+        styleButton(deleteButton);
+        styleButton(updateButton);
+
+        menuActionPanel.add(addButton);
+        menuActionPanel.add(deleteButton);
+        menuActionPanel.add(updateButton);
+        menuManagementPanel.add(menuActionPanel, BorderLayout.SOUTH);
+
+        addButton.addActionListener(e -> addItem());
+        deleteButton.addActionListener(e -> deleteItem());
+        updateButton.addActionListener(e -> updateItemPrice());
+
+        return menuManagementPanel;
+    }
+
+    private JButton createNavButton(String text) {
+        JButton button = new JButton(text);
+        button.setFocusPainted(false);
+        button.setContentAreaFilled(false);
+        button.setBorderPainted(false);
+        button.setOpaque(false);
+        button.setFont(new Font("Dialog", Font.BOLD, 14));
+        button.setForeground(Color.LIGHT_GRAY);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
+
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent evt) {
+                if (!button.isSelected()) {
+                    button.setForeground(Color.WHITE);
+                }
+            }
+            public void mouseExited(MouseEvent evt) {
+                if (!button.isSelected()) {
+                    button.setForeground(Color.LIGHT_GRAY);
+                }
+            }
+        });
+        return button;
+    }
+
+    private void updateNavButtonSelection(JButton selectedButton) {
+        for (JButton button : navButtons) {
+            button.setSelected(false);
+            button.setForeground(Color.LIGHT_GRAY);
+            button.setFont(new Font("Dialog", Font.BOLD, 14));
+        }
+        selectedButton.setSelected(true);
+        selectedButton.setForeground(Color.ORANGE);
+        selectedButton.setFont(new Font("Dialog", Font.BOLD, 16));
+    }
+
+    private void styleButton(JButton button) {
+        button.setFont(new Font("Dialog", Font.BOLD, 12));
+        button.setBackground(new Color(80, 80, 80));
+        button.setForeground(Color.WHITE);
+        button.setPreferredSize(new Dimension(180, 35));
+    }
+
+    private void styleTable(JTable table) {
+        table.getTableHeader().setFont(new Font("Dialog", Font.BOLD, 16));
+        table.getTableHeader().setBackground(new Color(30, 30, 30));
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.setFont(new Font("Dialog", Font.PLAIN, 14));
+        table.setRowHeight(30);
+        table.setBackground(new Color(50, 50, 50));
+        table.setForeground(Color.WHITE);
+        table.setSelectionBackground(Color.ORANGE);
+        table.setSelectionForeground(Color.BLACK);
+        table.setFillsViewportHeight(true);
+    }
+
+    private void styleScrollPane(JScrollPane scrollPane) {
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(80,80,80)));
+    }
+
+    private void refreshMenuTable() {
+        menuTableModel.setRowCount(0);
         for (MenuItem item : restaurant.getMenu()) {
-            menuListModel.addElement(item.getName() + " - Rs " + item.getPrice());
+            menuTableModel.addRow(new Object[]{item.getName(), String.format("%.2f", item.getPrice())});
         }
     }
 
     private void addItem() {
         JTextField nameField = new JTextField();
         JTextField priceField = new JTextField();
-        Object[] message = {
-                "Item Name:", nameField,
-                "Price:", priceField
-        };
-
-        int option = JOptionPane.showConfirmDialog(this, message, "Add New Item", JOptionPane.OK_CANCEL_OPTION);
+        Object[] message = {"Item Name:", nameField, "Price (Bdt):", priceField};
+        int option = JOptionPane.showConfirmDialog(this, message, "Add New Menu Item", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
             try {
                 String name = nameField.getText();
                 double price = Double.parseDouble(priceField.getText());
+                if (name.isEmpty()){
+                    JOptionPane.showMessageDialog(this, "Item name cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 restaurant.getMenu().add(new MenuItem(name, price));
-                restaurantDatabase.addRestaurant(restaurant); // This will save the updated restaurant
-                refreshMenuList();
+                restaurantDatabase.addRestaurant(restaurant);
+                refreshMenuTable();
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Invalid price format.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Invalid price format. Please enter a number.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
     private void deleteItem() {
-        int selectedIndex = menuJList.getSelectedIndex();
-        if (selectedIndex != -1) {
-            restaurant.getMenu().remove(selectedIndex);
-            restaurantDatabase.addRestaurant(restaurant);
-            refreshMenuList();
+        int selectedRow = menuTable.getSelectedRow();
+        if (selectedRow != -1) {
+            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this item?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                restaurant.getMenu().remove(selectedRow);
+                restaurantDatabase.addRestaurant(restaurant);
+                refreshMenuTable();
+            }
         } else {
-            JOptionPane.showMessageDialog(this, "Please select an item to delete.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select an item from the table to delete.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void updateItemPrice() {
-        int selectedIndex = menuJList.getSelectedIndex();
-        if (selectedIndex != -1) {
-            MenuItem item = restaurant.getMenu().get(selectedIndex);
+        int selectedRow = menuTable.getSelectedRow();
+        if (selectedRow != -1) {
+            MenuItem item = restaurant.getMenu().get(selectedRow);
             String newPriceStr = JOptionPane.showInputDialog(this, "Enter new price for " + item.getName() + ":", item.getPrice());
-            try {
-                double newPrice = Double.parseDouble(newPriceStr);
-                item = new MenuItem(item.getName(), newPrice); // Create a new item with the updated price
-                restaurant.getMenu().set(selectedIndex, item);
-                restaurantDatabase.addRestaurant(restaurant);
-                refreshMenuList();
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Invalid price format.", "Error", JOptionPane.ERROR_MESSAGE);
+            if(newPriceStr != null && !newPriceStr.isEmpty()) {
+                try {
+                    double newPrice = Double.parseDouble(newPriceStr);
+                    item = new MenuItem(item.getName(), newPrice);
+                    restaurant.getMenu().set(selectedRow, item);
+                    restaurantDatabase.addRestaurant(restaurant);
+                    refreshMenuTable();
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Invalid price format. Please enter a number.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         } else {
-            JOptionPane.showMessageDialog(this, "Please select an item to update.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select an item from the table to update.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

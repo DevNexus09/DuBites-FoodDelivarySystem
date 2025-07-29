@@ -2,6 +2,7 @@ package com.foodordersystem.ui.customer;
 
 import com.foodordersystem.core.UIManager;
 import com.foodordersystem.database.OrderDatabase;
+import com.foodordersystem.database.RestaurantDatabase; // Import RestaurantDatabase
 import com.foodordersystem.model.entities.MenuItem;
 import com.foodordersystem.model.entities.Order;
 import com.foodordersystem.model.entities.Restaurant;
@@ -53,7 +54,7 @@ public class FoodOrderSystem extends BaseFrame {
         setResizable(false);
         setLocationRelativeTo(null);
 
-        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/SignUpFrameBg.png", 1.0f);
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/FoodOrderSystemBg.png", 1.0f);
         backgroundPanel.setLayout(new BorderLayout());
         setContentPane(backgroundPanel);
 
@@ -138,7 +139,7 @@ public class FoodOrderSystem extends BaseFrame {
 
             JLabel priceLabel = new JLabel(String.format("Bdt %.2f", menuItem.getPrice()));
             priceLabel.setFont(new Font("Dialog", Font.ITALIC, 14));
-            priceLabel.setForeground(Color.LIGHT_GRAY);
+            priceLabel.setForeground(Color.green);
 
             JPanel infoPanel = new JPanel();
             infoPanel.setOpaque(false);
@@ -295,10 +296,17 @@ public class FoodOrderSystem extends BaseFrame {
             return;
         }
 
+        // Add order to the general order database
         new OrderDatabase().addOrder(order);
+
+        // Add the order to the specific restaurant and update the restaurant database
+        restaurant.addOrder(order);
+        new RestaurantDatabase().addRestaurant(restaurant);
+
         JOptionPane.showMessageDialog(this, "Your order has been placed!", "Order Confirmed", JOptionPane.INFORMATION_MESSAGE);
         backToRestaurants();
     }
+
 
     private void resetOrder() {
         for(MenuItem item : restaurant.getMenu()) {

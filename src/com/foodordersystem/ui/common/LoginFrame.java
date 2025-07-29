@@ -34,22 +34,32 @@ public class LoginFrame extends BaseFrame {
         // Main login panel, made transparent to show the background
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false); // Make panel transparent
-        panel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.WHITE, 2), "Login as " + role,
-                javax.swing.border.TitledBorder.CENTER,
-                javax.swing.border.TitledBorder.TOP,
-                new Font("DialogInput", Font.BOLD, 20), Color.WHITE));
+        panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // Add padding
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // --- Title ---
+        JLabel titleLabel = new JLabel("Login as " + role);
+        titleLabel.setFont(new Font("DialogInput", Font.BOLD, 22));
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(0, 0, 20, 0);
+        panel.add(titleLabel, gbc);
+        gbc.gridwidth = 1;
+        gbc.insets = new Insets(10, 10, 10, 10);
+
 
         // --- Form Fields ---
         Font labelFont = new Font("DialogInput", Font.BOLD, 14);
         Color labelColor = Color.WHITE;
 
         gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridy = 1;
         JLabel userLabel = new JLabel("Username:");
         userLabel.setFont(labelFont);
         userLabel.setForeground(labelColor);
@@ -60,7 +70,7 @@ public class LoginFrame extends BaseFrame {
         panel.add(usernameField, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         JLabel passLabel = new JLabel("Password:");
         passLabel.setFont(labelFont);
         passLabel.setForeground(labelColor);
@@ -71,21 +81,22 @@ public class LoginFrame extends BaseFrame {
         panel.add(passwordField, gbc);
 
         // --- Buttons ---
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonPanel.setOpaque(false); // Make button panel transparent
 
         JButton loginButton = new RoundedButton("Login");
-        styleButton(loginButton, new Font("DialogInput", Font.BOLD, 14), new Dimension(100, 40), Color.DARK_GRAY, Color.WHITE);
+        styleButton(loginButton, new Font("DialogInput", Font.BOLD, 14), new Dimension(120, 40), new Color(255, 102, 0), Color.WHITE);
 
         JButton backButton = new RoundedButton("Back");
-        styleButton(backButton, new Font("DialogInput", Font.BOLD, 14), new Dimension(100, 40), Color.DARK_GRAY, Color.WHITE);
+        styleButton(backButton, new Font("DialogInput", Font.BOLD, 14), new Dimension(120, 40), new Color(100, 100, 100), Color.WHITE);
 
         buttonPanel.add(loginButton);
         buttonPanel.add(backButton);
 
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.gridwidth = 2;
+        gbc.insets = new Insets(20, 0, 0, 0);
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(buttonPanel, gbc);
 
@@ -127,8 +138,6 @@ public class LoginFrame extends BaseFrame {
         button.setPreferredSize(size);
         button.setBackground(bgColor);
         button.setForeground(fgColor);
-        button.setFocusPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 }
-

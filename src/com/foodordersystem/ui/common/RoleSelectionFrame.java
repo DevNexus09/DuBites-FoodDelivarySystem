@@ -32,6 +32,7 @@ public class RoleSelectionFrame extends BaseFrame {
         // Add the new label
         JLabel titleLabel = new JLabel("Let Us Know Who You Are !");
         titleLabel.setFont(new Font("DialogInput", Font.BOLD, 24));
+        titleLabel.setForeground(Color.WHITE);
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         buttonPanel.add(titleLabel, gbc);
 
@@ -40,8 +41,8 @@ public class RoleSelectionFrame extends BaseFrame {
 
         // Button styling properties
         Font buttonFont = new Font("DialogInput", Font.BOLD, 16);
-        Dimension regularButtonSize = new Dimension(250, 50);
-        Dimension backButtonSize = new Dimension(150, 40); // Smaller size for the back button
+        Dimension regularButtonSize = new Dimension(120, 50);
+        Dimension backButtonSize = new Dimension(100, 40); // Smaller size for the back button
         Color buttonColor = new Color(255, 102, 0);
         Color backButtonColor = new Color(49, 49, 49);
         Color buttonTextColor = Color.WHITE;

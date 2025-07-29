@@ -6,6 +6,7 @@ import com.foodordersystem.model.entities.User;
 import com.foodordersystem.model.history.OrderHistory;
 import com.foodordersystem.model.history.RiderHistory;
 import com.foodordersystem.ui.common.BaseFrame;
+import com.foodordersystem.database.OrderDatabase;
 
 import javax.swing.*;
 import java.awt.*;
@@ -65,6 +66,8 @@ public class OrderPickupFrame extends BaseFrame {
     }
 
     private void deliveredOrder() {
+        order.setStatus("Delivered");
+        new OrderDatabase().addOrder(order);
         OrderHistory.saveOrder(new OrderHistory(order.getRestaurantName(), order.getTotal()));
         new RiderHistory().saveDelivery(rider.getUsername(), order.getOrderId());
 
