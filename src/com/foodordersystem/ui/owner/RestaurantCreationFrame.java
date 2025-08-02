@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class RestaurantCreationFrame extends BaseFrame {
     private final User owner;
@@ -203,7 +204,7 @@ public class RestaurantCreationFrame extends BaseFrame {
         String rCuisine = cuisineField.getText();
         String rPin = new String(pinField.getPassword());
 
-        if (rName.isEmpty() || rLocation.isEmpty() || rCuisine.isEmpty() || rPin.length() != 4 || selectedImagePath == null) {
+        if (rName.isEmpty() || rLocation.isEmpty() || rCuisine.isEmpty() || selectedImagePath == null || !Pattern.matches("\\d{4}", rPin)) {
             showErrorDialog("Please fill all fields, choose an image, and use a 4-digit PIN.");
             return;
         }

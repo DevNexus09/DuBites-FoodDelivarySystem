@@ -5,6 +5,7 @@ import com.foodordersystem.model.entities.User;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.regex.Pattern;
 
 public class SignupFrame extends BaseFrame {
     private final UserDatabase userDatabase;
@@ -98,8 +99,7 @@ public class SignupFrame extends BaseFrame {
             String address = addressField.getText();
             String role = (String) roleComboBox.getSelectedItem();
 
-            if (name.isEmpty() || username.isEmpty() || password.isEmpty()) {
-                showErrorDialog("Name, Username, and Password cannot be empty!");
+            if (!validateInput(name, dob, mobile, username, password, address)) {
                 return;
             }
 
@@ -116,6 +116,25 @@ public class SignupFrame extends BaseFrame {
             new LandingPage().setVisible(true);
             dispose();
         });
+    }
+
+    private boolean validateInput(String name, String dob, String mobile, String username, String password, String address) {
+        if (name.isEmpty() || username.isEmpty() || password.isEmpty() || address.isEmpty() || dob.isEmpty() || mobile.isEmpty()) {
+            showErrorDialog("All fields are required!");
+            return false;
+        }
+
+        if (!Pattern.matches("\\d{2}-\\d{2}-\\d{4}", dob)) {
+            showErrorDialog("Invalid date of birth format. Please use DD-MM-YYYY.");
+            return false;
+        }
+
+        if (!Pattern.matches("\\d{11}", mobile)) {
+            showErrorDialog("Invalid mobile number. Please enter an 11-digit number.");
+            return false;
+        }
+
+        return true;
     }
 
     /**
