@@ -31,7 +31,7 @@ public class RestaurantLoginFrame extends BaseFrame {
         setContentPane(backgroundPanel);
 
         if (restaurant == null) {
-            JOptionPane.showMessageDialog(this, "You do not own a restaurant yet. Please create one first.", "Error", JOptionPane.ERROR_MESSAGE);
+            showErrorDialog("You do not own a restaurant yet. Please create one first.");
             new OwnerDashboardFrame(owner).setVisible(true);
             dispose();
             return;
@@ -86,6 +86,7 @@ public class RestaurantLoginFrame extends BaseFrame {
         buttonPanel.setOpaque(false);
         JButton loginButton = new RoundedButton("Login to Manage");
         JButton backButton = new RoundedButton("Back");
+        loginButton.setForeground(new Color(255, 102,0));
         buttonPanel.add(loginButton);
         buttonPanel.add(backButton);
 
@@ -98,11 +99,11 @@ public class RestaurantLoginFrame extends BaseFrame {
         loginButton.addActionListener(e -> {
             String enteredPin = new String(pinField.getPassword());
             if (restaurant.getPin().equals(enteredPin)) {
-                JOptionPane.showMessageDialog(this, "Login successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                showSuccessDialog("Login successful!");
                 new ManagementDashboardFrame(restaurant).setVisible(true);
                 dispose();
             } else {
-                JOptionPane.showMessageDialog(this, "Invalid PIN.", "Error", JOptionPane.ERROR_MESSAGE);
+                showErrorDialog("Invalid PIN.");
             }
         });
 
@@ -110,5 +111,39 @@ public class RestaurantLoginFrame extends BaseFrame {
             new OwnerDashboardFrame(owner).setVisible(true);
             dispose();
         });
+    }
+
+    private void showErrorDialog(String message) {
+        UIManager.put("OptionPane.background", new Color(43, 43, 43));
+        UIManager.put("Panel.background", new Color(43, 43, 43));
+        UIManager.put("OptionPane.messageForeground", Color.WHITE);
+        UIManager.put("Button.background", new Color(255, 102, 0));
+        UIManager.put("Button.foreground", Color.WHITE);
+
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+
+        // Reset to default
+        UIManager.put("OptionPane.background", null);
+        UIManager.put("Panel.background", null);
+        UIManager.put("OptionPane.messageForeground", null);
+        UIManager.put("Button.background", null);
+        UIManager.put("Button.foreground", null);
+    }
+
+    private void showSuccessDialog(String message) {
+        UIManager.put("OptionPane.background", new Color(43, 43, 43));
+        UIManager.put("Panel.background", new Color(43, 43, 43));
+        UIManager.put("OptionPane.messageForeground", Color.WHITE);
+        UIManager.put("Button.background", new Color(45, 137, 45));
+        UIManager.put("Button.foreground", Color.WHITE);
+
+        JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
+
+        // Reset to default
+        UIManager.put("OptionPane.background", null);
+        UIManager.put("Panel.background", null);
+        UIManager.put("OptionPane.messageForeground", null);
+        UIManager.put("Button.background", null);
+        UIManager.put("Button.foreground", null);
     }
 }

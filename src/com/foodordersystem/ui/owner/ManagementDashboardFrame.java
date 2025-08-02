@@ -25,6 +25,7 @@ public class ManagementDashboardFrame extends BaseFrame {
     private CardLayout cardLayout;
     private JPanel contentPanel;
     private final List<JButton> navButtons = new ArrayList<>();
+    private DashboardPanel dashboardPanel; // Field to hold the dashboard panel
 
     public ManagementDashboardFrame(Restaurant restaurant) {
         super("Management Dashboard: " + restaurant.getName(), 1200, 750);
@@ -50,19 +51,27 @@ public class ManagementDashboardFrame extends BaseFrame {
         contentPanel.setLayout(cardLayout);
         contentPanel.setOpaque(false);
 
-        JPanel dashboardPage = new DashboardPanel(restaurant);
-        dashboardPage.setOpaque(false);
+        dashboardPanel = new DashboardPanel(restaurant); // Use the field
+        dashboardPanel.setOpaque(false);
 
         JPanel menuManagementPage = createMenuManagementPanel();
         menuManagementPage.setOpaque(false);
 
-        contentPanel.add(dashboardPage, "Dashboard");
+        contentPanel.add(dashboardPanel, "Dashboard");
         contentPanel.add(menuManagementPage, "Menu Management");
 
         backgroundPanel.add(contentPanel, BorderLayout.CENTER);
 
         cardLayout.show(contentPanel, "Dashboard");
         updateNavButtonSelection(navButtons.get(0));
+
+        // Add a timer to refresh the dashboard every 5 seconds
+        Timer timer = new Timer(5000, e -> {
+            if (dashboardPanel.isShowing()) {
+                dashboardPanel.refreshData();
+            }
+        });
+        timer.start();
     }
 
     private JPanel createNavPanel() {
@@ -228,20 +237,20 @@ public class ManagementDashboardFrame extends BaseFrame {
         JTextField nameField = new JTextField();
         JTextField priceField = new JTextField();
         Object[] message = {"Item Name:", nameField, "Price (Bdt):", priceField};
-        int option = JOptionPane.showConfirmDialog(this, message, "Add New Menu Item", JOptionPane.OK_CANCEL_OPTION);
+        int option = showCustomConfirmDialog(message, "Add New Menu Item", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
             try {
                 String name = nameField.getText();
                 double price = Double.parseDouble(priceField.getText());
                 if (name.isEmpty()){
-                    JOptionPane.showMessageDialog(this, "Item name cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+                    showErrorDialog("Item name cannot be empty.");
                     return;
                 }
                 restaurant.getMenu().add(new MenuItem(name, price));
                 restaurantDatabase.addRestaurant(restaurant);
                 refreshMenuTable();
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Invalid price format. Please enter a number.", "Error", JOptionPane.ERROR_MESSAGE);
+                showErrorDialog("Invalid price format. Please enter a number.");
             }
         }
     }
@@ -249,14 +258,14 @@ public class ManagementDashboardFrame extends BaseFrame {
     private void deleteItem() {
         int selectedRow = menuTable.getSelectedRow();
         if (selectedRow != -1) {
-            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this item?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+            int confirm = showCustomConfirmDialog("Are you sure you want to delete this item?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 restaurant.getMenu().remove(selectedRow);
                 restaurantDatabase.addRestaurant(restaurant);
                 refreshMenuTable();
             }
         } else {
-            JOptionPane.showMessageDialog(this, "Please select an item from the table to delete.", "Error", JOptionPane.ERROR_MESSAGE);
+            showErrorDialog("Please select an item from the table to delete.");
         }
     }
 
@@ -264,7 +273,7 @@ public class ManagementDashboardFrame extends BaseFrame {
         int selectedRow = menuTable.getSelectedRow();
         if (selectedRow != -1) {
             MenuItem item = restaurant.getMenu().get(selectedRow);
-            String newPriceStr = JOptionPane.showInputDialog(this, "Enter new price for " + item.getName() + ":", item.getPrice());
+            String newPriceStr = showCustomInputDialog("Enter new price for " + item.getName() + ":", String.valueOf(item.getPrice()));
             if(newPriceStr != null && !newPriceStr.isEmpty()) {
                 try {
                     double newPrice = Double.parseDouble(newPriceStr);
@@ -273,11 +282,74 @@ public class ManagementDashboardFrame extends BaseFrame {
                     restaurantDatabase.addRestaurant(restaurant);
                     refreshMenuTable();
                 } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "Invalid price format. Please enter a number.", "Error", JOptionPane.ERROR_MESSAGE);
+                    showErrorDialog("Invalid price format. Please enter a number.");
                 }
             }
         } else {
-            JOptionPane.showMessageDialog(this, "Please select an item from the table to update.", "Error", JOptionPane.ERROR_MESSAGE);
+            showErrorDialog("Please select an item from the table to update.");
         }
+    }
+
+    private void showErrorDialog(String message) {
+        UIManager.put("OptionPane.background", new Color(43, 43, 43));
+        UIManager.put("Panel.background", new Color(43, 43, 43));
+        UIManager.put("OptionPane.messageForeground", Color.WHITE);
+        UIManager.put("Button.background", new Color(255, 102, 0));
+        UIManager.put("Button.foreground", Color.WHITE);
+
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+
+        // Reset to default
+        UIManager.put("OptionPane.background", null);
+        UIManager.put("Panel.background", null);
+        UIManager.put("OptionPane.messageForeground", null);
+        UIManager.put("Button.background", null);
+        UIManager.put("Button.foreground", null);
+    }
+
+    private int showCustomConfirmDialog(Object message, String title, int optionType) {
+        UIManager.put("OptionPane.background", new Color(43, 43, 43));
+        UIManager.put("Panel.background", new Color(43, 43, 43));
+        UIManager.put("OptionPane.messageForeground", Color.WHITE);
+        UIManager.put("Button.background", new Color(255, 102, 0));
+        UIManager.put("Button.foreground", Color.WHITE);
+
+        int result = JOptionPane.showConfirmDialog(this, message, title, optionType);
+
+        // Reset to default
+        UIManager.put("OptionPane.background", null);
+        UIManager.put("Panel.background", null);
+        UIManager.put("OptionPane.messageForeground", null);
+        UIManager.put("Button.background", null);
+        UIManager.put("Button.foreground", null);
+
+        return result;
+    }
+
+    private String showCustomInputDialog(String message, String initialValue) {
+        UIManager.put("OptionPane.background", new Color(43, 43, 43));
+        UIManager.put("Panel.background", new Color(43, 43, 43));
+        UIManager.put("OptionPane.messageForeground", Color.WHITE);
+        UIManager.put("Button.background", new Color(255, 102, 0));
+        UIManager.put("Button.foreground", Color.WHITE);
+        UIManager.put("TextField.background", new Color(60, 63, 65));
+        UIManager.put("TextField.foreground", Color.WHITE);
+        UIManager.put("TextField.caretForeground", Color.WHITE);
+
+
+        String result = JOptionPane.showInputDialog(this, message, initialValue);
+
+        // Reset to default
+        UIManager.put("OptionPane.background", null);
+        UIManager.put("Panel.background", null);
+        UIManager.put("OptionPane.messageForeground", null);
+        UIManager.put("Button.background", null);
+        UIManager.put("Button.foreground", null);
+        UIManager.put("TextField.background", null);
+        UIManager.put("TextField.foreground", null);
+        UIManager.put("TextField.caretForeground", null);
+
+
+        return result;
     }
 }

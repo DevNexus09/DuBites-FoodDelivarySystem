@@ -99,12 +99,12 @@ public class SignupFrame extends BaseFrame {
             String role = (String) roleComboBox.getSelectedItem();
 
             if (name.isEmpty() || username.isEmpty() || password.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Name, Username, and Password cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+                showErrorDialog("Name, Username, and Password cannot be empty!");
                 return;
             }
 
             if (userDatabase.isUsernameTaken(username)) {
-                JOptionPane.showMessageDialog(this, "Username is already taken!", "Error", JOptionPane.ERROR_MESSAGE);
+                showErrorDialog("Username is already taken!");
             } else {
                 userDatabase.addUser(new User(name, dob, mobile, username, password, address, role));
                 new LoginFrame(role).setVisible(true);
@@ -140,5 +140,22 @@ public class SignupFrame extends BaseFrame {
         button.setBackground(bgColor);
         button.setForeground(fgColor);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void showErrorDialog(String message) {
+        UIManager.put("OptionPane.background", new Color(43, 43, 43));
+        UIManager.put("Panel.background", new Color(43, 43, 43));
+        UIManager.put("OptionPane.messageForeground", Color.WHITE);
+        UIManager.put("Button.background", new Color(255, 102, 0));
+        UIManager.put("Button.foreground", Color.WHITE);
+
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+
+        // Reset to default
+        UIManager.put("OptionPane.background", null);
+        UIManager.put("Panel.background", null);
+        UIManager.put("OptionPane.messageForeground", null);
+        UIManager.put("Button.background", null);
+        UIManager.put("Button.foreground", null);
     }
 }

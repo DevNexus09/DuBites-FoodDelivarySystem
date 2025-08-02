@@ -10,14 +10,16 @@ public class Order implements Serializable {
     private final String orderId;
     private final List<MenuItem> menuItems;
     private double subTotal;
-    private double deliveryCharge; // Typo corrected
+    private double deliveryCharge;
     private double total;
     private String status;
     private String riderUsername;
     private final String restaurantName;
     private final String restaurantLocation;
     private final String customerUsername;
+    private  final String customerName;
     private final String customerAddress;
+    private final String customerMobileNumber;
 
     public Order(List<MenuItem> menuItems, Restaurant restaurant, User customer) {
         this.orderId = UUID.randomUUID().toString();
@@ -25,19 +27,29 @@ public class Order implements Serializable {
         this.restaurantName = restaurant.getName();
         this.restaurantLocation = restaurant.getLocation();
         this.customerUsername = customer.getUsername();
+        this.customerName = customer.getName();
         this.customerAddress = customer.getAddress();
+        this.customerMobileNumber = customer.getMobileNumber(); // Set the mobile number
         this.status = "Placed";
+    }
+
+    public void finalizeQuantities() {
+        if (menuItems != null) {
+            for (MenuItem item : menuItems) {
+                item.syncQuantityFromTextField();
+            }
+        }
     }
 
     public void calculateTotals() {
         subTotal = 0.0;
         for (MenuItem item : menuItems) {
+            item.syncQuantityFromTextField(); // Ensure quantity is up-to-date
             if (item.isSelected()) {
                 subTotal += item.getCost();
             }
         }
-        // Assuming a fixed delivery charge for now
-        deliveryCharge = 15.00; // Typo corrected
+        deliveryCharge = 15.00;
         total = subTotal + deliveryCharge;
     }
 
@@ -45,7 +57,7 @@ public class Order implements Serializable {
         return subTotal;
     }
 
-    public double getDeliveryCharge() { // Typo corrected
+    public double getDeliveryCharge() {
         return deliveryCharge;
     }
 
@@ -89,7 +101,15 @@ public class Order implements Serializable {
         return customerUsername;
     }
 
+    public String getCustomerName() {
+        return customerName;
+    }
+
     public String getCustomerAddress() {
         return customerAddress;
+    }
+
+    public String getCustomerMobileNumber() {
+        return customerMobileNumber;
     }
 }

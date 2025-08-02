@@ -2,7 +2,7 @@ package com.foodordersystem.ui.customer;
 
 import com.foodordersystem.core.UIManager;
 import com.foodordersystem.database.OrderDatabase;
-import com.foodordersystem.database.RestaurantDatabase; // Import RestaurantDatabase
+import com.foodordersystem.database.RestaurantDatabase;
 import com.foodordersystem.model.entities.MenuItem;
 import com.foodordersystem.model.entities.Order;
 import com.foodordersystem.model.entities.Restaurant;
@@ -54,7 +54,7 @@ public class FoodOrderSystem extends BaseFrame {
         setResizable(false);
         setLocationRelativeTo(null);
 
-        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/FoodOrderSystemBg.png", 1.0f);
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/ManagementDashboardFrameBg.png", 1.0f);
         backgroundPanel.setLayout(new BorderLayout());
         setContentPane(backgroundPanel);
 
@@ -153,6 +153,8 @@ public class FoodOrderSystem extends BaseFrame {
             JButton minusButton = new CircularButton("-");
             JButton plusButton = new CircularButton("+");
             JTextField quantityField = menuItem.getQuantityField();
+            plusButton.setForeground(Color.LIGHT_GRAY);
+            minusButton.setForeground(Color.LIGHT_GRAY);
 
             // Style the quantity field
             quantityField.setPreferredSize(new Dimension(40, 30));
@@ -283,16 +285,22 @@ public class FoodOrderSystem extends BaseFrame {
         jtxtTotal.setText(String.format("%.2f", order.getTotal()));
         jtxtReceipt.setText(Receipt.generateReceipt(order));
 
-        jbtnConfirmOrder.setEnabled(order.getTotal() > 0);
+        if (order.getTotal() == 0) {
+            showErrorDialog("Please select at least one item to proceed to checkout.");
+            jbtnConfirmOrder.setEnabled(false);
+        } else {
+            jbtnConfirmOrder.setEnabled(true);
+        }
     }
 
     private void confirmOrder() {
+        order.finalizeQuantities();
         List<MenuItem> selectedItems = order.getMenuItems().stream()
                 .filter(MenuItem::isSelected)
                 .collect(Collectors.toList());
 
         if (selectedItems.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please select at least one item.", "Error", JOptionPane.ERROR_MESSAGE);
+            showErrorDialog("Please select at least one item.");
             return;
         }
 
@@ -303,7 +311,7 @@ public class FoodOrderSystem extends BaseFrame {
         restaurant.addOrder(order);
         new RestaurantDatabase().addRestaurant(restaurant);
 
-        JOptionPane.showMessageDialog(this, "Your order has been placed!", "Order Confirmed", JOptionPane.INFORMATION_MESSAGE);
+        showSuccessDialog("Your order has been placed successfully! Thank you for choosing DuBites.");
         backToRestaurants();
     }
 
@@ -376,5 +384,39 @@ public class FoodOrderSystem extends BaseFrame {
         button.setBackground(color);
         button.setForeground(Color.WHITE);
         button.setPreferredSize(size);
+    }
+
+    private void showErrorDialog(String message) {
+        javax.swing.UIManager.put("OptionPane.background", new Color(43, 43, 43));
+        javax.swing.UIManager.put("Panel.background", new Color(43, 43, 43));
+        javax.swing.UIManager.put("OptionPane.messageForeground", Color.WHITE);
+        javax.swing.UIManager.put("Button.background", new Color(255, 102, 0));
+        javax.swing.UIManager.put("Button.foreground", Color.WHITE);
+
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+
+        // Reset to default
+        javax.swing.UIManager.put("OptionPane.background", null);
+        javax.swing.UIManager.put("Panel.background", null);
+        javax.swing.UIManager.put("OptionPane.messageForeground", null);
+        javax.swing.UIManager.put("Button.background", null);
+        javax.swing.UIManager.put("Button.foreground", null);
+    }
+
+    private void showSuccessDialog(String message) {
+        javax.swing.UIManager.put("OptionPane.background", new Color(43, 43, 43));
+        javax.swing.UIManager.put("Panel.background", new Color(43, 43, 43));
+        javax.swing.UIManager.put("OptionPane.messageForeground", Color.WHITE);
+        javax.swing.UIManager.put("Button.background", new Color(45, 137, 45));
+        javax.swing.UIManager.put("Button.foreground", Color.WHITE);
+
+        JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
+
+        // Reset to default
+        javax.swing.UIManager.put("OptionPane.background", null);
+        javax.swing.UIManager.put("Panel.background", null);
+        javax.swing.UIManager.put("OptionPane.messageForeground", null);
+        javax.swing.UIManager.put("Button.background", null);
+        javax.swing.UIManager.put("Button.foreground", null);
     }
 }

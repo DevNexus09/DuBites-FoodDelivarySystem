@@ -27,7 +27,18 @@ public class RestaurantCreationFrame extends BaseFrame {
     public RestaurantCreationFrame(User owner) {
         super("Create a New Restaurant", 900, 700);
         this.owner = owner;
-        initComponents();
+
+        // Check if a restaurant already exists for this owner
+        if (new RestaurantDatabase().findRestaurantByOwner(owner.getUsername()) != null) {
+            // Using invokeLater to ensure the dialog appears after the frame is properly set up
+            SwingUtilities.invokeLater(() -> {
+                showErrorDialog("You can only create one restaurant per account.");
+                new OwnerDashboardFrame(owner).setVisible(true);
+                dispose();
+            });
+        } else {
+            initComponents();
+        }
     }
 
     protected void initComponents() {
@@ -166,7 +177,7 @@ public class RestaurantCreationFrame extends BaseFrame {
 
             } catch (Exception ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error saving or loading image.", "Error", JOptionPane.ERROR_MESSAGE);
+                showErrorDialog("Error saving or loading image.");
             }
         }
     }
@@ -182,7 +193,7 @@ public class RestaurantCreationFrame extends BaseFrame {
                 priceField.setText("");
             }
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Please enter a valid price.", "Error", JOptionPane.ERROR_MESSAGE);
+            showErrorDialog("Please enter a valid price.");
         }
     }
 
@@ -193,7 +204,7 @@ public class RestaurantCreationFrame extends BaseFrame {
         String rPin = new String(pinField.getPassword());
 
         if (rName.isEmpty() || rLocation.isEmpty() || rCuisine.isEmpty() || rPin.length() != 4 || selectedImagePath == null) {
-            JOptionPane.showMessageDialog(this, "Please fill all fields, choose an image, and use a 4-digit PIN.", "Error", JOptionPane.ERROR_MESSAGE);
+            showErrorDialog("Please fill all fields, choose an image, and use a 4-digit PIN.");
             return;
         }
 
@@ -202,8 +213,42 @@ public class RestaurantCreationFrame extends BaseFrame {
         newRestaurant.setMenu(initialMenu);
         db.addRestaurant(newRestaurant);
 
-        JOptionPane.showMessageDialog(this, "Restaurant created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        showSuccessDialog("Restaurant created successfully!");
         new OwnerDashboardFrame(owner).setVisible(true);
         dispose();
+    }
+
+    private void showErrorDialog(String message) {
+        UIManager.put("OptionPane.background", new Color(43, 43, 43));
+        UIManager.put("Panel.background", new Color(43, 43, 43));
+        UIManager.put("OptionPane.messageForeground", Color.WHITE);
+        UIManager.put("Button.background", new Color(255, 102, 0));
+        UIManager.put("Button.foreground", Color.WHITE);
+
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+
+        // Reset to default
+        UIManager.put("OptionPane.background", null);
+        UIManager.put("Panel.background", null);
+        UIManager.put("OptionPane.messageForeground", null);
+        UIManager.put("Button.background", null);
+        UIManager.put("Button.foreground", null);
+    }
+
+    private void showSuccessDialog(String message) {
+        UIManager.put("OptionPane.background", new Color(43, 43, 43));
+        UIManager.put("Panel.background", new Color(43, 43, 43));
+        UIManager.put("OptionPane.messageForeground", Color.WHITE);
+        UIManager.put("Button.background", new Color(45, 137, 45));
+        UIManager.put("Button.foreground", Color.WHITE);
+
+        JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
+
+        // Reset to default
+        UIManager.put("OptionPane.background", null);
+        UIManager.put("Panel.background", null);
+        UIManager.put("OptionPane.messageForeground", null);
+        UIManager.put("Button.background", null);
+        UIManager.put("Button.foreground", null);
     }
 }

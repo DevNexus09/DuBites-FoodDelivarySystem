@@ -5,6 +5,7 @@ import com.foodordersystem.model.entities.Order;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class OrderDatabase {
     private static final String ORDER_FILE = "ordersOnline.dat";
@@ -20,7 +21,7 @@ public class OrderDatabase {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ORDER_FILE))) {
             orders = (List<Order>) ois.readObject();
         } catch (FileNotFoundException e) {
-            // File doesn't exist, which is fine
+            // File doesn't exist yet, which is fine.
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -39,6 +40,23 @@ public class OrderDatabase {
         saveOrders();
     }
 
+    public void updateOrder(Order orderToUpdate) {
+        Optional<Order> existingOrderOpt = orders.stream()
+                .filter(o -> o.getOrderId().equals(orderToUpdate.getOrderId()))
+                .findFirst();
+
+        if (existingOrderOpt.isPresent()) {
+            // Remove the old order and add the updated one
+            orders.removeIf(o -> o.getOrderId().equals(orderToUpdate.getOrderId()));
+            orders.add(orderToUpdate);
+        } else {
+            // If for some reason it's not there, just add it.
+            orders.add(orderToUpdate);
+        }
+        saveOrders();
+    }
+
+
     public void removeOrder(String orderId) {
         orders.removeIf(order -> order.getOrderId().equals(orderId));
         saveOrders();
@@ -54,6 +72,6 @@ public class OrderDatabase {
     }
 
     public List<Order> getAllOrders() {
-        return orders;
+        return new ArrayList<>(orders);
     }
 }

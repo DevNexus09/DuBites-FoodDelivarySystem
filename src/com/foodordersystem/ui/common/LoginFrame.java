@@ -123,7 +123,7 @@ public class LoginFrame extends BaseFrame {
                 }
                 dispose();
             } else {
-                JOptionPane.showMessageDialog(this, "Invalid credentials", "Error", JOptionPane.ERROR_MESSAGE);
+                showErrorDialog("Invalid credentials");
             }
         });
 
@@ -139,5 +139,22 @@ public class LoginFrame extends BaseFrame {
         button.setBackground(bgColor);
         button.setForeground(fgColor);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void showErrorDialog(String message) {
+        UIManager.put("OptionPane.background", new Color(43, 43, 43));
+        UIManager.put("Panel.background", new Color(43, 43, 43));
+        UIManager.put("OptionPane.messageForeground", Color.WHITE);
+        UIManager.put("Button.background", new Color(255, 102, 0));
+        UIManager.put("Button.foreground", Color.WHITE);
+
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+
+        // Reset to default
+        UIManager.put("OptionPane.background", null);
+        UIManager.put("Panel.background", null);
+        UIManager.put("OptionPane.messageForeground", null);
+        UIManager.put("Button.background", null);
+        UIManager.put("Button.foreground", null);
     }
 }

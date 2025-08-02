@@ -20,7 +20,7 @@ public class Receipt {
         String date = Tdate.format(currentTime);
 
         StringBuilder receiptText = new StringBuilder();
-        receiptText.append("\tReceipt\n");
+        receiptText.append("Receipt\n");
         receiptText.append("========================================\n");
         receiptText.append("Ref:\t\t\t").append(ref).append("\n");
         receiptText.append("Date: ").append(date).append("\tTime: ").append(time).append("\n");
@@ -30,7 +30,7 @@ public class Receipt {
         receiptText.append("----------------------------------------\n");
         receiptText.append("Total:\t\t\t").append(String.format("Bdt %.2f", order.getTotal())).append("\n");
         receiptText.append("========================================\n");
-        receiptText.append("\n\tThanks for your order!\n");
+        receiptText.append("\nThanks for your order!\n");
 
         return receiptText.toString();
     }
