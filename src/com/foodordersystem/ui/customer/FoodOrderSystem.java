@@ -3,10 +3,12 @@ package com.foodordersystem.ui.customer;
 import com.foodordersystem.core.UIManager;
 import com.foodordersystem.database.OrderDatabase;
 import com.foodordersystem.database.RestaurantDatabase;
+import com.foodordersystem.database.UserDatabase;
 import com.foodordersystem.model.entities.MenuItem;
 import com.foodordersystem.model.entities.Order;
 import com.foodordersystem.model.entities.Restaurant;
 import com.foodordersystem.model.entities.User;
+import com.foodordersystem.model.entities.Review;
 import com.foodordersystem.ui.common.BaseFrame;
 import com.foodordersystem.ui.common.ImagePanel;
 import com.foodordersystem.ui.common.Receipt;
@@ -17,6 +19,7 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FoodOrderSystem extends BaseFrame {
@@ -28,6 +31,7 @@ public class FoodOrderSystem extends BaseFrame {
     private JTextField jtxtDeliveryCharge, jtxtSub, jtxtTotal;
     private JTextArea jtxtReceipt;
     private JButton jbtnConfirmOrder;
+    private JButton jbtnReview;
 
     public FoodOrderSystem(Restaurant restaurant, User customer) {
         super(restaurant.getName() + " - Food Ordering System", 1000, 700);
@@ -36,6 +40,17 @@ public class FoodOrderSystem extends BaseFrame {
         initializeModels();
         initComponents();
     }
+
+    public FoodOrderSystem(Order order) {
+        super(order.getRestaurantName() + " - Reordering", 1000, 700);
+        this.order = order;
+        this.restaurant = new RestaurantDatabase().findRestaurantByName(order.getRestaurantName());
+        this.customer = new UserDatabase().findUserByUsername(order.getCustomerUsername());
+        initializeModels();
+        initComponents();
+        repopulateOrder();
+    }
+
 
     private void initializeModels() {
         List<MenuItem> menuItems = restaurant.getMenu();
@@ -47,6 +62,19 @@ public class FoodOrderSystem extends BaseFrame {
         order = new Order(menuItems, restaurant, customer);
         uiManager = new UIManager(menuItems);
     }
+
+    private void repopulateOrder() {
+        for (MenuItem pastItem : order.getMenuItems()) {
+            for (MenuItem currentItem : restaurant.getMenu()) {
+                if (pastItem.getName().equals(currentItem.getName())) {
+                    currentItem.getQuantityField().setText(String.valueOf(pastItem.getQuantity()));
+                    currentItem.getCheckBox().setSelected(true);
+                }
+            }
+        }
+        updateTotal();
+    }
+
 
     @Override
     protected void initComponents() {
@@ -70,8 +98,8 @@ public class FoodOrderSystem extends BaseFrame {
         gbc.weightx = 0.6;
         gbc.weighty = 1.0;
         gbc.insets = new Insets(0, 0, 0, 10);
-        JScrollPane menuScrollPane = createMenuPanel();
-        contentPanel.add(menuScrollPane, gbc);
+        JComponent menuComponent = createMenuPanel();
+        contentPanel.add(menuComponent, gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 0;
@@ -108,7 +136,6 @@ public class FoodOrderSystem extends BaseFrame {
             }
             g2.fill(new Ellipse2D.Float(0, 0, getWidth(), getHeight()));
 
-            // Draw the text in the center
             g2.setColor(getForeground());
             g2.setFont(getFont());
             FontMetrics metrics = g2.getFontMetrics(getFont());
@@ -127,11 +154,8 @@ public class FoodOrderSystem extends BaseFrame {
         public MenuItemCard(MenuItem item) {
             this.menuItem = item;
             setLayout(new BorderLayout(10, 10));
-            setOpaque(false);
-            setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(new Color(255, 255, 255, 80)),
-                    BorderFactory.createEmptyBorder(10, 15, 10, 15)
-            ));
+            setOpaque(false); // Make transparent to allow custom painting
+            setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
 
             JLabel nameLabel = new JLabel(menuItem.getName());
             nameLabel.setFont(new Font("Dialog", Font.BOLD, 16));
@@ -139,7 +163,7 @@ public class FoodOrderSystem extends BaseFrame {
 
             JLabel priceLabel = new JLabel(String.format("Bdt %.2f", menuItem.getPrice()));
             priceLabel.setFont(new Font("Dialog", Font.ITALIC, 14));
-            priceLabel.setForeground(Color.green);
+            priceLabel.setForeground(Color.ORANGE);
 
             JPanel infoPanel = new JPanel();
             infoPanel.setOpaque(false);
@@ -147,7 +171,6 @@ public class FoodOrderSystem extends BaseFrame {
             infoPanel.add(nameLabel);
             infoPanel.add(priceLabel);
 
-            // Quantity controls
             JPanel quantityPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
             quantityPanel.setOpaque(false);
             JButton minusButton = new CircularButton("-");
@@ -156,13 +179,12 @@ public class FoodOrderSystem extends BaseFrame {
             plusButton.setForeground(Color.LIGHT_GRAY);
             minusButton.setForeground(Color.LIGHT_GRAY);
 
-            // Style the quantity field
             quantityField.setPreferredSize(new Dimension(40, 30));
             quantityField.setHorizontalAlignment(JTextField.CENTER);
             quantityField.setEditable(false);
             quantityField.setFont(new Font("Dialog", Font.BOLD, 16));
             quantityField.setForeground(Color.WHITE);
-            quantityField.setBackground(new Color(0,0,0,0)); // Transparent background
+            quantityField.setBackground(new Color(0,0,0,0));
             quantityField.setOpaque(false);
             quantityField.setBorder(null);
 
@@ -193,6 +215,18 @@ public class FoodOrderSystem extends BaseFrame {
             add(quantityPanel, BorderLayout.EAST);
         }
 
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(new Color(255, 255, 255, 20)); // Semi-transparent white background
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15); // Rounded corners
+            g2.setColor(new Color(255, 255, 255, 80)); // Semi-transparent border
+            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
+            g2.dispose();
+            super.paintComponent(g);
+        }
+
         private void styleQuantityButton(JButton button) {
             button.setFont(new Font("Dialog", Font.BOLD, 20));
             button.setBackground(new Color(50, 50, 50, 200));
@@ -200,19 +234,54 @@ public class FoodOrderSystem extends BaseFrame {
         }
     }
 
-    private JScrollPane createMenuPanel() {
-        JPanel menuPanel = createTitledPanel("Select Your Dish");
-        menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
+    private JComponent createMenuPanel() {
+        // Temporarily set UIManager properties for the tabbed pane
+        javax.swing.UIManager.put("TabbedPane.contentOpaque", false);
+        javax.swing.UIManager.put("TabbedPane.background", new Color(0, 0, 0, 120));
+        javax.swing.UIManager.put("TabbedPane.foreground", Color.WHITE);
+        javax.swing.UIManager.put("TabbedPane.selected", new Color(255, 102, 0));
+        javax.swing.UIManager.put("TabbedPane.focus", new Color(255, 102, 0, 50));
+        javax.swing.UIManager.put("TabbedPane.borderHightlightColor", Color.DARK_GRAY);
+        javax.swing.UIManager.put("TabbedPane.darkShadow", Color.DARK_GRAY);
+        javax.swing.UIManager.put("TabbedPane.light", Color.DARK_GRAY);
 
-        List<MenuItem> menuItems = restaurant.getMenu();
-        for (MenuItem item : menuItems) {
-            menuPanel.add(new MenuItemCard(item));
-            menuPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.setOpaque(false);
+        tabbedPane.setFont(new Font("Dialog", Font.BOLD, 14));
+
+
+        Map<String, List<MenuItem>> groupedMenu = restaurant.getMenu().stream()
+                .filter(MenuItem::isAvailable)
+                .collect(Collectors.groupingBy(MenuItem::getCategory));
+
+        for (Map.Entry<String, List<MenuItem>> entry : groupedMenu.entrySet()) {
+            JPanel categoryPanel = new JPanel();
+            categoryPanel.setLayout(new BoxLayout(categoryPanel, BoxLayout.Y_AXIS));
+            categoryPanel.setOpaque(false);
+            categoryPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+
+            for (MenuItem item : entry.getValue()) {
+                categoryPanel.add(new MenuItemCard(item));
+                categoryPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            }
+
+            // Add a glue component to push items to the top
+            categoryPanel.add(Box.createVerticalGlue());
+
+            JScrollPane scrollPane = new JScrollPane(categoryPanel);
+            styleScrollPane(scrollPane);
+            tabbedPane.addTab(entry.getKey(), scrollPane);
         }
 
-        JScrollPane menuScrollPane = new JScrollPane(menuPanel);
-        styleScrollPane(menuScrollPane);
-        return menuScrollPane;
+        // Reset UIManager properties to avoid affecting other components
+        javax.swing.UIManager.put("TabbedPane.contentOpaque", true);
+        javax.swing.UIManager.put("TabbedPane.background", null);
+        javax.swing.UIManager.put("TabbedPane.foreground", null);
+        javax.swing.UIManager.put("TabbedPane.selected", null);
+        javax.swing.UIManager.put("TabbedPane.focus", null);
+
+
+        return tabbedPane;
     }
 
     private JPanel createOrderPanel() {
@@ -255,23 +324,28 @@ public class FoodOrderSystem extends BaseFrame {
 
         JButton jbtnCheckout = new RoundedButton("Checkout");
         jbtnConfirmOrder = new RoundedButton("Confirm Order");
+        jbtnReview = new RoundedButton("Review");
         JButton jbtnReset = new RoundedButton("Reset");
         JButton jbtnBack = new RoundedButton("Back");
 
         styleOrderButton(jbtnCheckout, new Color(0, 122, 204), new Dimension(150, 40));
         styleOrderButton(jbtnConfirmOrder, new Color(45, 137, 45), new Dimension(150, 40));
+        styleOrderButton(jbtnReview, new Color(255, 153, 0), new Dimension(150, 40));
         styleOrderButton(jbtnReset, new Color(192, 57, 43), new Dimension(150, 40));
         styleOrderButton(jbtnBack, new Color(100, 100, 100), new Dimension(150, 40));
 
         jbtnConfirmOrder.setEnabled(false);
+        jbtnReview.setEnabled(false);
 
         jbtnCheckout.addActionListener(e -> updateTotal());
         jbtnConfirmOrder.addActionListener(e -> confirmOrder());
+        jbtnReview.addActionListener(e -> showReviewDialog());
         jbtnReset.addActionListener(e -> resetOrder());
         jbtnBack.addActionListener(e -> backToRestaurants());
 
         buttonPanel.add(jbtnCheckout);
         buttonPanel.add(jbtnConfirmOrder);
+        buttonPanel.add(jbtnReview);
         buttonPanel.add(jbtnReset);
         buttonPanel.add(jbtnBack);
 
@@ -304,17 +378,13 @@ public class FoodOrderSystem extends BaseFrame {
             return;
         }
 
-        // Add order to the general order database
         new OrderDatabase().addOrder(order);
-
-        // Add the order to the specific restaurant and update the restaurant database
         restaurant.addOrder(order);
         new RestaurantDatabase().addRestaurant(restaurant);
 
         showSuccessDialog("Your order has been placed successfully! Thank you for choosing DuBites.");
-        backToRestaurants();
+        jbtnReview.setEnabled(true);
     }
-
 
     private void resetOrder() {
         for(MenuItem item : restaurant.getMenu()) {
@@ -329,6 +399,55 @@ public class FoodOrderSystem extends BaseFrame {
     private void backToRestaurants() {
         new RestaurantSelectionFrame(customer).setVisible(true);
         dispose();
+    }
+
+    private void showReviewDialog() {
+        JDialog reviewDialog = new JDialog(this, "Leave a Review", true);
+        reviewDialog.setLayout(new BorderLayout(10, 10));
+        reviewDialog.setSize(400, 300);
+        reviewDialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        gbc.gridx = 0; gbc.gridy = 0;
+        panel.add(new JLabel("Rating:"), gbc);
+
+        gbc.gridx = 1;
+        JComboBox<Integer> ratingComboBox = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5});
+        panel.add(ratingComboBox, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.NORTH;
+        panel.add(new JLabel("Comment:"), gbc);
+
+        gbc.gridx = 1; gbc.gridy = 1;
+        gbc.weightx = 1.0; gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        JTextArea commentArea = new JTextArea(5, 20);
+        JScrollPane scrollPane = new JScrollPane(commentArea);
+        panel.add(scrollPane, gbc);
+
+        JButton submitButton = new RoundedButton("Submit");
+        submitButton.addActionListener(e -> {
+            int rating = (int) ratingComboBox.getSelectedItem();
+            String comment = commentArea.getText();
+            Review review = new Review(customer.getUsername(), rating, comment);
+            restaurant.addReview(review);
+            new RestaurantDatabase().addRestaurant(restaurant);
+            reviewDialog.dispose();
+            showSuccessDialog("Thank you for your review!");
+        });
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(submitButton);
+
+        reviewDialog.add(panel, BorderLayout.CENTER);
+        reviewDialog.add(buttonPanel, BorderLayout.SOUTH);
+        reviewDialog.setVisible(true);
     }
 
     private JPanel createTitledPanel(String title) {
@@ -392,10 +511,7 @@ public class FoodOrderSystem extends BaseFrame {
         javax.swing.UIManager.put("OptionPane.messageForeground", Color.WHITE);
         javax.swing.UIManager.put("Button.background", new Color(255, 102, 0));
         javax.swing.UIManager.put("Button.foreground", Color.WHITE);
-
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
-
-        // Reset to default
         javax.swing.UIManager.put("OptionPane.background", null);
         javax.swing.UIManager.put("Panel.background", null);
         javax.swing.UIManager.put("OptionPane.messageForeground", null);
@@ -409,10 +525,7 @@ public class FoodOrderSystem extends BaseFrame {
         javax.swing.UIManager.put("OptionPane.messageForeground", Color.WHITE);
         javax.swing.UIManager.put("Button.background", new Color(45, 137, 45));
         javax.swing.UIManager.put("Button.foreground", Color.WHITE);
-
         JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
-
-        // Reset to default
         javax.swing.UIManager.put("OptionPane.background", null);
         javax.swing.UIManager.put("Panel.background", null);
         javax.swing.UIManager.put("OptionPane.messageForeground", null);

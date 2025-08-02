@@ -17,8 +17,11 @@ public class Restaurant implements Serializable {
     private List<MenuItem> menu;
     private String imagePath;
     private List<Order> orders; // Added to track orders
+    private List<Review> reviews;
+    private int deliveryTime; // in minutes
+    private String priceRange; // e.g., "$", "$$", "$$$"
 
-    public Restaurant(String name, String ownerUsername, String location, String pin, String imagePath, String cuisine) {
+    public Restaurant(String name, String ownerUsername, String location, String pin, String imagePath, String cuisine, int deliveryTime, String priceRange) {
         this.name = name;
         this.ownerUsername = ownerUsername;
         this.location = location;
@@ -28,6 +31,9 @@ public class Restaurant implements Serializable {
         this.delivaryCharge = 15;
         this.menu = new ArrayList<>();
         this.orders = new ArrayList<>(); // Initialize the orders list
+        this.reviews = new ArrayList<>();
+        this.deliveryTime = deliveryTime;
+        this.priceRange = priceRange;
     }
 
     // Existing getters...
@@ -39,6 +45,8 @@ public class Restaurant implements Serializable {
     public String getCuisine() { return cuisine; }
     public int getDelivaryCharge() { return delivaryCharge; }
     public List<MenuItem> getMenu() { return menu; }
+    public int getDeliveryTime() { return deliveryTime; }
+    public String getPriceRange() { return priceRange; }
 
     // New methods for orders
     public List<Order> getOrders() {
@@ -53,4 +61,26 @@ public class Restaurant implements Serializable {
     }
 
     public void setMenu(List<MenuItem> menu) { this.menu = menu; }
+
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void addReview(Review review) {
+        if (this.reviews == null) {
+            this.reviews = new ArrayList<>();
+        }
+        this.reviews.add(review);
+    }
+
+    public double getAverageRating() {
+        if (reviews == null || reviews.isEmpty()) {
+            return 0.0;
+        }
+        double sum = 0;
+        for (Review review : reviews) {
+            sum += review.getRating();
+        }
+        return sum / reviews.size();
+    }
 }

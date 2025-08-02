@@ -11,15 +11,19 @@ public class MenuItem implements Serializable {
 
     private final String name;
     private final double price;
+    private final String category;
     private int quantity;
+    private boolean available;
 
     private transient JCheckBox checkBox;
     private transient JTextField quantityField;
 
-    public MenuItem(String name, double price) {
+    public MenuItem(String name, double price, String category) {
         this.name = name;
         this.price = price;
+        this.category = category;
         this.quantity = 0;
+        this.available = true; // Items are available by default
         reinitializeUIComponents();
     }
 
@@ -44,17 +48,17 @@ public class MenuItem implements Serializable {
         return price * quantity;
     }
 
-    public int getQuantity() {
-        return quantity;
-    }
-
+    public int getQuantity() { return quantity; }
     public JCheckBox getCheckBox() { return checkBox; }
     public String getName() { return name; }
     public double getPrice() { return price; }
+    public String getCategory() { return category; }
     public JTextField getQuantityField() { return quantityField; }
-    public boolean isSelected() {
-        return this.quantity > 0;
-    }
+    public boolean isSelected() { return this.quantity > 0; }
+
+    public boolean isAvailable() { return available; }
+    public void setAvailable(boolean available) { this.available = available; }
+
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();

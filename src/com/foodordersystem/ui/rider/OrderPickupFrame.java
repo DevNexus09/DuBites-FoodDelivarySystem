@@ -174,10 +174,11 @@ public class OrderPickupFrame extends BaseFrame {
                 restaurantDb.addRestaurant(restaurant); // This will update the restaurant in the database
             }
 
+            RiderHistory.DeliveryRecord record = new RiderHistory.DeliveryRecord(order.getOrderId(), order.getRestaurantName(), order.getDeliveryCharge());
+            new RiderHistory().saveDelivery(rider.getUsername(), record);
+
 
             OrderHistory.saveOrder(new OrderHistory(order.getRestaurantName(), order.getTotal()));
-            new RiderHistory().saveDelivery(rider.getUsername(), order.getOrderId());
-
 
             showCustomMessageDialog(
                     "Order delivery completed and recorded! Great job!",

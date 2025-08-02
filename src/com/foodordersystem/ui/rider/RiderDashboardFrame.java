@@ -11,9 +11,13 @@ import com.foodordersystem.ui.common.RoundedButton;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.plaf.basic.BasicTabbedPaneUI;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +28,7 @@ public class RiderDashboardFrame extends BaseFrame {
     private OrderDatabase orderDatabase;
     private JPanel ordersPanel;
     private final JLabel deliveryCountLabel;
+    private int lastOrderCount = 0;
 
     public RiderDashboardFrame(User rider) {
         super("Rider Dashboard - " + rider.getName(), 900, 700);
@@ -31,6 +36,9 @@ public class RiderDashboardFrame extends BaseFrame {
         this.orderDatabase = new OrderDatabase();
         this.deliveryCountLabel = new JLabel("Total Deliveries: 0");
         initComponents();
+
+        Timer timer = new Timer(10000, e -> checkForNewOrders());
+        timer.start();
     }
 
     protected void initComponents() {
@@ -38,10 +46,34 @@ public class RiderDashboardFrame extends BaseFrame {
         setLocationRelativeTo(null);
 
         ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/FoodOrderSystemBg.png", 0.9f);
-        backgroundPanel.setLayout(new BorderLayout(10, 10));
+        backgroundPanel.setLayout(new BorderLayout());
         setContentPane(backgroundPanel);
 
-        // Header Panel
+        // Custom UI for the tabbed pane
+        UIManager.put("TabbedPane.contentOpaque", false);
+        UIManager.put("TabbedPane.background", new Color(0, 0, 0, 120));
+        UIManager.put("TabbedPane.foreground", Color.WHITE);
+        UIManager.put("TabbedPane.selected", new Color(255, 102, 0));
+        UIManager.put("TabbedPane.focus", new Color(255, 102, 0, 50));
+        UIManager.put("TabbedPane.borderHightlightColor", Color.DARK_GRAY);
+        UIManager.put("TabbedPane.darkShadow", Color.DARK_GRAY);
+        UIManager.put("TabbedPane.light", Color.DARK_GRAY);
+
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.setOpaque(false);
+        tabbedPane.setFont(new Font("Dialog", Font.BOLD, 14));
+        tabbedPane.addTab("Live Deliveries", createLiveDeliveriesPanel());
+        tabbedPane.addTab("Delivery History", createHistoryPanel());
+
+        backgroundPanel.add(tabbedPane, BorderLayout.CENTER);
+
+        updateDeliveryCount();
+    }
+
+    private JPanel createLiveDeliveriesPanel() {
+        JPanel liveDeliveriesPanel = new JPanel(new BorderLayout(10, 10));
+        liveDeliveriesPanel.setOpaque(false);
+
         JPanel headerPanel = new JPanel(new BorderLayout(20, 10));
         headerPanel.setOpaque(false);
         headerPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
@@ -72,9 +104,8 @@ public class RiderDashboardFrame extends BaseFrame {
         rightHeaderPanel.add(logoutButton);
 
         headerPanel.add(rightHeaderPanel, BorderLayout.EAST);
-        backgroundPanel.add(headerPanel, BorderLayout.NORTH);
+        liveDeliveriesPanel.add(headerPanel, BorderLayout.NORTH);
 
-        // Orders Panel
         ordersPanel = new JPanel();
         ordersPanel.setOpaque(false);
         ordersPanel.setLayout(new BoxLayout(ordersPanel, BoxLayout.Y_AXIS));
@@ -85,11 +116,86 @@ public class RiderDashboardFrame extends BaseFrame {
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
-        backgroundPanel.add(scrollPane, BorderLayout.CENTER);
+        liveDeliveriesPanel.add(scrollPane, BorderLayout.CENTER);
 
         refreshOrderList();
-        updateDeliveryCount();
+
+        return liveDeliveriesPanel;
     }
+
+    private JPanel createHistoryPanel() {
+        JPanel historyPanel = new JPanel(new BorderLayout(10, 10));
+        historyPanel.setOpaque(false);
+        historyPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        topPanel.setOpaque(false);
+        JComboBox<String> dateFilter = new JComboBox<>(new String[]{"All Time", "Today", "This Week", "This Month"});
+        topPanel.add(new JLabel("Filter by:") {{ setForeground(Color.WHITE); }});
+        topPanel.add(dateFilter);
+        historyPanel.add(topPanel, BorderLayout.NORTH);
+
+        String[] columnNames = {"Order ID", "Restaurant", "Date", "Earnings (Bdt)"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        JTable historyTable = new JTable(tableModel);
+        styleTable(historyTable);
+
+        JScrollPane scrollPane = new JScrollPane(historyTable);
+        styleScrollPane(scrollPane);
+        historyPanel.add(scrollPane, BorderLayout.CENTER);
+
+        JLabel totalEarningsLabel = new JLabel("Total Earnings: Bdt 0.00");
+        totalEarningsLabel.setFont(new Font("Dialog", Font.BOLD, 16));
+        totalEarningsLabel.setForeground(Color.ORANGE);
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.setOpaque(false);
+        bottomPanel.add(totalEarningsLabel);
+        historyPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        dateFilter.addActionListener(e -> {
+            updateHistoryTable(tableModel, totalEarningsLabel, (String) dateFilter.getSelectedItem());
+        });
+
+        updateHistoryTable(tableModel, totalEarningsLabel, "All Time");
+
+        return historyPanel;
+    }
+
+    private void updateHistoryTable(DefaultTableModel model, JLabel earningsLabel, String filter) {
+        model.setRowCount(0);
+        List<RiderHistory.DeliveryRecord> history = new RiderHistory().getHistory(rider.getUsername());
+        double totalEarnings = 0;
+        LocalDate now = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        List<RiderHistory.DeliveryRecord> filteredHistory = history.stream().filter(record -> {
+            LocalDate recordDate = record.getDeliveryDate().toLocalDate();
+            switch (filter) {
+                case "Today": return recordDate.isEqual(now);
+                case "This Week": return !recordDate.isBefore(now.minusWeeks(1));
+                case "This Month": return recordDate.getMonth() == now.getMonth() && recordDate.getYear() == now.getYear();
+                default: return true;
+            }
+        }).collect(Collectors.toList());
+
+        for (RiderHistory.DeliveryRecord record : filteredHistory) {
+            model.addRow(new Object[]{
+                    record.getOrderId().substring(0, 8).toUpperCase(),
+                    record.getRestaurantName(),
+                    record.getDeliveryDate().format(formatter),
+                    String.format("%.2f", record.getEarnings())
+            });
+            totalEarnings += record.getEarnings();
+        }
+
+        earningsLabel.setText(String.format("Total Earnings: Bdt %.2f", totalEarnings));
+    }
+
 
     public void refreshOrderList() {
         orderDatabase = new OrderDatabase();
@@ -117,8 +223,21 @@ public class RiderDashboardFrame extends BaseFrame {
                 ordersPanel.add(Box.createRigidArea(new Dimension(0, 15)));
             }
         }
+        lastOrderCount = filteredOrders.size();
         ordersPanel.revalidate();
         ordersPanel.repaint();
+    }
+
+    private void checkForNewOrders() {
+        List<Order> currentOrders = new OrderDatabase().getAllOrders().stream()
+                .filter(o -> "Placed".equalsIgnoreCase(o.getStatus()))
+                .collect(Collectors.toList());
+
+        if (currentOrders.size() > lastOrderCount) {
+            JOptionPane.showMessageDialog(this, "A new delivery is available!", "New Order", JOptionPane.INFORMATION_MESSAGE);
+            refreshOrderList();
+        }
+        lastOrderCount = currentOrders.size();
     }
 
 
@@ -136,21 +255,35 @@ public class RiderDashboardFrame extends BaseFrame {
         button.setPreferredSize(new Dimension(90, 35));
     }
 
+    private void styleTable(JTable table) {
+        table.getTableHeader().setFont(new Font("Dialog", Font.BOLD, 16));
+        table.getTableHeader().setBackground(new Color(30, 30, 30));
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.setFont(new Font("Dialog", Font.PLAIN, 14));
+        table.setRowHeight(30);
+        table.setBackground(new Color(50, 50, 50));
+        table.setForeground(Color.WHITE);
+        table.setSelectionBackground(Color.ORANGE);
+        table.setSelectionForeground(Color.BLACK);
+        table.setFillsViewportHeight(true);
+    }
+
+    private void styleScrollPane(JScrollPane scrollPane) {
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(80,80,80)));
+    }
+
+
     private class OrderCardPanel extends JPanel {
         public OrderCardPanel(Order order) {
             setLayout(new BorderLayout(15, 10));
             setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
 
-            // Custom painting for a semi-transparent rounded background
             setOpaque(false);
 
-            Border defaultBorder = BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(new Color(255, 255, 255, 70), 2),
-                    BorderFactory.createEmptyBorder(15, 20, 15, 20)
-            );
-            setBorder(defaultBorder);
+            setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
 
-            // Details Panel
             JPanel detailsPanel = new JPanel(new GridLayout(3, 1, 0, 5));
             detailsPanel.setOpaque(false);
 
@@ -172,7 +305,6 @@ public class RiderDashboardFrame extends BaseFrame {
             detailsPanel.add(toLabel);
             detailsPanel.add(idLabel);
 
-            // Pickup Button
             JButton pickupButton = new RoundedButton("View Details");
             pickupButton.setFont(new Font("Dialog", Font.BOLD, 12));
             pickupButton.setBackground(new Color(45, 137, 45));

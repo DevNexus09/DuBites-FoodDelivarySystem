@@ -10,9 +10,12 @@ import com.foodordersystem.ui.common.RoundedButton;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +26,9 @@ public class RestaurantSelectionFrame extends BaseFrame {
     private JPanel restaurantPanel;
     private JTextField searchField;
     private JComboBox<String> cuisineFilter;
+    private JComboBox<String> sortFilter;
+    private JLabel noRestaurantsLabel;
+    private JScrollPane scrollPane;
 
     public RestaurantSelectionFrame(User customer) {
         super("Select a Restaurant", 1100, 800);
@@ -64,9 +70,14 @@ public class RestaurantSelectionFrame extends BaseFrame {
         searchLabel.setFont(new Font("Dialog", Font.BOLD, 14));
         topPanel.add(searchLabel, gbc);
 
-        // Search Field
+        // Search Field with Live Search Listener
         searchField = new JTextField(15);
         styleTextField(searchField);
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { filterAndSortRestaurants(); }
+            public void removeUpdate(DocumentEvent e) { filterAndSortRestaurants(); }
+            public void changedUpdate(DocumentEvent e) { filterAndSortRestaurants(); }
+        });
         topPanel.add(searchField, gbc);
 
         // Cuisine Label
@@ -82,35 +93,62 @@ public class RestaurantSelectionFrame extends BaseFrame {
         cuisines.add(0, "All Cuisines");
         cuisineFilter = new JComboBox<>(cuisines.toArray(new String[0]));
         styleComboBox(cuisineFilter);
+        cuisineFilter.addActionListener(e -> filterAndSortRestaurants());
         topPanel.add(cuisineFilter, gbc);
 
-        // Search Button
-        JButton searchButton = new RoundedButton("Search");
-        styleHeaderButton(searchButton);
-        searchButton.addActionListener(e -> filterRestaurants());
+        // Sort Label
+        JLabel sortLabel = new JLabel("Sort By:");
+        sortLabel.setForeground(Color.WHITE);
+        sortLabel.setFont(new Font("Dialog", Font.BOLD, 14));
         gbc.insets = new Insets(0, 15, 0, 5);
-        topPanel.add(searchButton, gbc);
+        topPanel.add(sortLabel, gbc);
+        gbc.insets = new Insets(0, 5, 0, 5);
+
+        // Sort Filter
+        sortFilter = new JComboBox<>(new String[]{"Default", "Rating (High to Low)", "Delivery Time (Fastest First)", "Price Range (Low to High)"});
+        styleComboBox(sortFilter);
+        sortFilter.addActionListener(e -> filterAndSortRestaurants());
+        topPanel.add(sortFilter, gbc);
+
 
         headerPanel.add(topPanel, BorderLayout.EAST);
         backgroundPanel.add(headerPanel, BorderLayout.NORTH);
 
-        if (allRestaurants.isEmpty()) {
-            JLabel noRestaurantsLabel = new JLabel("No restaurants available yet.", SwingConstants.CENTER);
-            noRestaurantsLabel.setFont(new Font("Dialog", Font.BOLD, 18));
-            noRestaurantsLabel.setForeground(Color.WHITE);
-            add(noRestaurantsLabel, BorderLayout.CENTER);
-        } else {
-            restaurantPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 25, 25));
-            restaurantPanel.setOpaque(false);
-            updateRestaurantPanel();
+        // Label for when no restaurants are found
+        noRestaurantsLabel = new JLabel("No restaurants match your criteria.", SwingConstants.CENTER);
+        noRestaurantsLabel.setFont(new Font("Dialog", Font.BOLD, 18));
+        noRestaurantsLabel.setForeground(Color.WHITE);
+        noRestaurantsLabel.setVisible(false); // Initially hidden
+        backgroundPanel.add(noRestaurantsLabel, BorderLayout.CENTER);
 
-            JScrollPane scrollPane = new JScrollPane(restaurantPanel);
-            scrollPane.setOpaque(false);
-            scrollPane.getViewport().setOpaque(false);
-            scrollPane.setBorder(BorderFactory.createEmptyBorder());
-            scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-            backgroundPanel.add(scrollPane, BorderLayout.CENTER);
-        }
+
+        // Panel to display restaurant cards
+        restaurantPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 25, 25));
+        restaurantPanel.setOpaque(false);
+
+        scrollPane = new JScrollPane(restaurantPanel);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        backgroundPanel.add(scrollPane, BorderLayout.CENTER);
+
+        // Initial population of the restaurant panel
+        updateRestaurantPanel();
+
+        // Bottom panel for buttons
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.setOpaque(false);
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 30));
+
+        JButton orderHistoryButton = new RoundedButton("Order History");
+        styleHeaderButton(orderHistoryButton);
+        orderHistoryButton.addActionListener(e -> {
+            new OrderHistoryFrame(customer).setVisible(true);
+            dispose();
+        });
+        bottomPanel.add(orderHistoryButton);
+
 
         JButton logoutButton = new RoundedButton("Logout");
         styleHeaderButton(logoutButton);
@@ -118,35 +156,58 @@ public class RestaurantSelectionFrame extends BaseFrame {
             new RoleSelectionFrame().setVisible(true);
             dispose();
         });
-
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        bottomPanel.setOpaque(false);
-        bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 30));
         bottomPanel.add(logoutButton);
+
         backgroundPanel.add(bottomPanel, BorderLayout.SOUTH);
     }
 
-    private void filterRestaurants() {
+    private void filterAndSortRestaurants() {
         String searchText = searchField.getText().toLowerCase();
         String selectedCuisine = (String) cuisineFilter.getSelectedItem();
+        String selectedSort = (String) sortFilter.getSelectedItem();
 
+        // Apply filters
         filteredRestaurants = allRestaurants.stream()
                 .filter(r -> r.getName().toLowerCase().contains(searchText))
                 .filter(r -> "All Cuisines".equals(selectedCuisine) || r.getCuisine().equals(selectedCuisine))
                 .collect(Collectors.toList());
 
+        // Apply sorting
+        switch (selectedSort) {
+            case "Rating (High to Low)":
+                filteredRestaurants.sort(Comparator.comparing(Restaurant::getAverageRating).reversed());
+                break;
+            case "Delivery Time (Fastest First)":
+                filteredRestaurants.sort(Comparator.comparing(Restaurant::getDeliveryTime));
+                break;
+            case "Price Range (Low to High)":
+                filteredRestaurants.sort(Comparator.comparing(Restaurant::getPriceRange));
+                break;
+        }
+
         updateRestaurantPanel();
     }
 
     private void updateRestaurantPanel() {
-        restaurantPanel.removeAll();
-        for (Restaurant restaurant : filteredRestaurants) {
-            RestaurantCardPanel restaurantCard = new RestaurantCardPanel(restaurant);
-            restaurantPanel.add(restaurantCard);
-        }
-        restaurantPanel.revalidate();
-        restaurantPanel.repaint();
+        // Use SwingUtilities.invokeLater to ensure thread safety with UI updates
+        SwingUtilities.invokeLater(() -> {
+            restaurantPanel.removeAll();
+            if (filteredRestaurants.isEmpty()) {
+                scrollPane.setVisible(false);
+                noRestaurantsLabel.setVisible(true);
+            } else {
+                scrollPane.setVisible(true);
+                noRestaurantsLabel.setVisible(false);
+                for (Restaurant restaurant : filteredRestaurants) {
+                    RestaurantCardPanel restaurantCard = new RestaurantCardPanel(restaurant);
+                    restaurantPanel.add(restaurantCard);
+                }
+            }
+            restaurantPanel.revalidate();
+            restaurantPanel.repaint();
+        });
     }
+
 
     private void styleTextField(JTextField textField) {
         textField.setFont(new Font("Dialog", Font.PLAIN, 14));
@@ -172,13 +233,13 @@ public class RestaurantSelectionFrame extends BaseFrame {
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        button.setPreferredSize(new Dimension(80, 30));
+        button.setPreferredSize(new Dimension(120, 30));
     }
 
     private class RestaurantCardPanel extends JPanel {
         public RestaurantCardPanel(Restaurant restaurant) {
             setLayout(new BorderLayout(0, 10));
-            setPreferredSize(new Dimension(220, 250));
+            setPreferredSize(new Dimension(220, 280));
             setOpaque(false);
             setCursor(new Cursor(Cursor.HAND_CURSOR));
 
@@ -202,7 +263,7 @@ public class RestaurantSelectionFrame extends BaseFrame {
             }
             add(imageLabel, BorderLayout.CENTER);
 
-            JPanel detailsPanel = new JPanel(new GridLayout(2, 1));
+            JPanel detailsPanel = new JPanel(new GridLayout(3, 1));
             detailsPanel.setOpaque(false);
 
             JLabel nameLabel = new JLabel(restaurant.getName());
@@ -215,8 +276,15 @@ public class RestaurantSelectionFrame extends BaseFrame {
             locationLabel.setForeground(Color.LIGHT_GRAY);
             locationLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
+            JLabel ratingLabel = new JLabel(String.format("Rating: %.1f", restaurant.getAverageRating()));
+            ratingLabel.setFont(new Font("Dialog", Font.PLAIN, 12));
+            ratingLabel.setForeground(Color.ORANGE);
+            ratingLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+
             detailsPanel.add(nameLabel);
             detailsPanel.add(locationLabel);
+            detailsPanel.add(ratingLabel);
             add(detailsPanel, BorderLayout.SOUTH);
 
             addMouseListener(new MouseAdapter() {

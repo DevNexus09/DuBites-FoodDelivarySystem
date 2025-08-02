@@ -1,6 +1,7 @@
 package com.foodordersystem.model.entities;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ public class Order implements Serializable {
     private  final String customerName;
     private final String customerAddress;
     private final String customerMobileNumber;
+    private final LocalDateTime orderDate;
 
     public Order(List<MenuItem> menuItems, Restaurant restaurant, User customer) {
         this.orderId = UUID.randomUUID().toString();
@@ -31,6 +33,7 @@ public class Order implements Serializable {
         this.customerAddress = customer.getAddress();
         this.customerMobileNumber = customer.getMobileNumber(); // Set the mobile number
         this.status = "Placed";
+        this.orderDate = LocalDateTime.now();
     }
 
     public void finalizeQuantities() {
@@ -111,5 +114,9 @@ public class Order implements Serializable {
 
     public String getCustomerMobileNumber() {
         return customerMobileNumber;
+    }
+
+    public LocalDateTime getOrderDate() {
+        return orderDate;
     }
 }
