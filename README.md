@@ -26,7 +26,7 @@ Follow these instructions to get a copy of the project up and running on your lo
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/DevNexus09/DuBites-FoodDelivarySystem.git](https://github.com/DevNexus09/DuBites-FoodDelivarySystem.git)
+    git clone https://github.com/DevNexus09/DuBites-FoodDelivarySystem.git
     ```
 
 2.  **Navigate to the project directory:**
@@ -58,6 +58,6 @@ Follow these instructions to get a copy of the project up and running on your lo
 
 ## 📝 Future Improvements
 
-* [ ] Implement a graphical user interface (GUI) using JavaFX or Swing.
+* [ ] Implement peer to peer networking among users from different locations
 * [ ] Add more detailed restaurant menus.
 * [ ] Integrate a proper database instead of `.dat` files for more robust data management.
