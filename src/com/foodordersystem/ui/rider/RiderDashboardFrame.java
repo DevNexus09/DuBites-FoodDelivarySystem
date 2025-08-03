@@ -45,7 +45,7 @@ public class RiderDashboardFrame extends BaseFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/FoodOrderSystemBg.png", 0.9f);
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/ManagementDashboardFrameBg.png", 0.9f);
         backgroundPanel.setLayout(new BorderLayout());
         setContentPane(backgroundPanel);
 
@@ -53,7 +53,7 @@ public class RiderDashboardFrame extends BaseFrame {
         UIManager.put("TabbedPane.contentOpaque", false);
         UIManager.put("TabbedPane.background", new Color(0, 0, 0, 120));
         UIManager.put("TabbedPane.foreground", Color.WHITE);
-        UIManager.put("TabbedPane.selected", new Color(255, 102, 0));
+        UIManager.put("TabbedPane.selected", new Color(79, 77, 77));
         UIManager.put("TabbedPane.focus", new Color(255, 102, 0, 50));
         UIManager.put("TabbedPane.borderHightlightColor", Color.DARK_GRAY);
         UIManager.put("TabbedPane.darkShadow", Color.DARK_GRAY);
@@ -96,6 +96,7 @@ public class RiderDashboardFrame extends BaseFrame {
         rightHeaderPanel.add(refreshButton);
 
         JButton logoutButton = new RoundedButton("Logout");
+        logoutButton.setBackground(Color.BLACK);
         styleHeaderButton(logoutButton);
         logoutButton.addActionListener(e -> {
             new RoleSelectionFrame().setVisible(true);

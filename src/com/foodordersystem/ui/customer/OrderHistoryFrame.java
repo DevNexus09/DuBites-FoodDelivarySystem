@@ -25,7 +25,7 @@ public class OrderHistoryFrame extends BaseFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/FoodOrderSystemBg.png", 1.0f);
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/ManagementDashboardFrameBg.png", 1.0f);
         backgroundPanel.setLayout(new BorderLayout());
         setContentPane(backgroundPanel);
 
@@ -97,6 +97,8 @@ public class OrderHistoryFrame extends BaseFrame {
         detailsPanel.add(totalLabel);
 
         JButton reorderButton = new RoundedButton("Reorder");
+        reorderButton.setBackground(new Color(5, 73, 36));
+        reorderButton.setForeground(Color.WHITE);
         reorderButton.addActionListener(e -> {
             new FoodOrderSystem(order).setVisible(true);
             dispose();

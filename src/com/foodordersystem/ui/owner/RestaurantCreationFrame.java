@@ -44,7 +44,7 @@ public class RestaurantCreationFrame extends BaseFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/RestaurantCreationFrameBg.png", 1.0f);
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/ManagementDashboardFrameBg.png", 1.0f);
         backgroundPanel.setLayout(new BorderLayout(10, 10));
         backgroundPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         setContentPane(backgroundPanel);
@@ -64,7 +64,7 @@ public class RestaurantCreationFrame extends BaseFrame {
         JTextField locationField = new JTextField(20);
         gbc.gridx = 1; formPanel.add(locationField, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 2; addField(formPanel, gbc, "Cuisine (e.g., Italian):");
+        gbc.gridx = 0; gbc.gridy = 2; addField(formPanel, gbc, "Cuisine:");
         JTextField cuisineField = new JTextField(20);
         gbc.gridx = 1; formPanel.add(cuisineField, gbc);
 
@@ -120,9 +120,10 @@ public class RestaurantCreationFrame extends BaseFrame {
         JTextField itemNameField = new JTextField(15);
         JTextField itemPriceField = new JTextField(5);
         JTextField itemCategoryField = new JTextField(10);
-        JButton addItemButton = new RoundedButton("Add Item");
+        JButton addItemButton = new RoundedButton("Add");
+        addItemButton.setForeground(new Color(255, 102,0));
 
-        menuItemInputPanel.add(new JLabel("Item Name:") {{ setForeground(Color.WHITE); }});
+        menuItemInputPanel.add(new JLabel("Item:") {{ setForeground(Color.WHITE); }});
         menuItemInputPanel.add(itemNameField);
         menuItemInputPanel.add(new JLabel("Price:") {{ setForeground(Color.WHITE); }});
         menuItemInputPanel.add(itemPriceField);
@@ -136,7 +137,8 @@ public class RestaurantCreationFrame extends BaseFrame {
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottomPanel.setOpaque(false);
         JButton createRestaurantButton = new RoundedButton("Create Restaurant");
-        JButton backButton = new RoundedButton("Back to Dashboard");
+        JButton backButton = new RoundedButton("Back");
+        createRestaurantButton.setForeground(new Color(255, 102,0));
         bottomPanel.add(createRestaurantButton);
         bottomPanel.add(backButton);
 

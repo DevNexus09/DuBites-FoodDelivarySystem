@@ -22,7 +22,7 @@ public class SignupFrame extends BaseFrame {
         setLocationRelativeTo(null);
 
         // Use ImagePanel as the content pane for the background
-        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/SignUpFrameBg.png", 1.0f);
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/ManagementDashboardFrameBg.png", 1.0f);
         backgroundPanel.setLayout(new GridBagLayout()); // To center the form
         setContentPane(backgroundPanel);
 

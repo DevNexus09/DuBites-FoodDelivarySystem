@@ -53,7 +53,7 @@ public class RestaurantSelectionFrame extends BaseFrame {
         headerPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
         JLabel titleLabel = new JLabel("Explore Restaurants");
-        titleLabel.setFont(new Font("DialogInput", Font.BOLD, 28));
+        titleLabel.setFont(new Font("DialogInput", Font.BOLD, 20));
         titleLabel.setForeground(Color.WHITE);
         headerPanel.add(titleLabel, BorderLayout.WEST);
 
