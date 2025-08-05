@@ -27,7 +27,6 @@ public class OrderHistory implements Serializable {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(HISTORY_FILE))) {
             history = (List<OrderHistory>) ois.readObject();
         } catch (FileNotFoundException e) {
-            // File does not exist, which is fine
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }

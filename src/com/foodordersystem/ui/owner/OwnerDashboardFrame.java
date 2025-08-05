@@ -65,6 +65,7 @@ public class OwnerDashboardFrame extends BaseFrame {
                 "/com/foodordersystem/Resources/manage_icon.png"
         );
 
+        // checks if an owner has a restaurant or not
         if (existingRestaurant != null) {
             setCardEnabled(createCard, false);
             createCard.setToolTipText("You can only own one restaurant per account.");

@@ -167,6 +167,7 @@ public class RiderDashboardFrame extends BaseFrame {
         return historyPanel;
     }
 
+    // Updates the rider history table using filters
     private void updateHistoryTable(DefaultTableModel model, JLabel earningsLabel, String filter) {
         model.setRowCount(0);
         List<RiderHistory.DeliveryRecord> history = new RiderHistory().getHistory(rider.getUsername());
@@ -197,7 +198,7 @@ public class RiderDashboardFrame extends BaseFrame {
         earningsLabel.setText(String.format("Total Earnings: Bdt %.2f", totalEarnings));
     }
 
-
+    // Refreshes online orders
     public void refreshOrderList() {
         orderDatabase = new OrderDatabase();
         ordersPanel.removeAll();

@@ -186,7 +186,6 @@ public class ManagementDashboardFrame extends BaseFrame {
 
     private JPanel createFeedbackPanel() {
         JPanel feedbackPanel = new JPanel(new BorderLayout(20, 20));
-        // 1. Set the main panel background to black
         feedbackPanel.setBackground(Color.BLACK);
         feedbackPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
@@ -196,7 +195,6 @@ public class ManagementDashboardFrame extends BaseFrame {
         feedbackPanel.add(title, BorderLayout.NORTH);
 
         JPanel reviewsContainer = new JPanel();
-        // 2. Set the container for reviews to have a black background
         reviewsContainer.setBackground(Color.BLACK);
         reviewsContainer.setLayout(new BoxLayout(reviewsContainer, BoxLayout.Y_AXIS));
 
@@ -216,7 +214,6 @@ public class ManagementDashboardFrame extends BaseFrame {
 
         JScrollPane scrollPane = new JScrollPane(reviewsContainer);
         styleScrollPane(scrollPane);
-        // 3. Ensure the scrollable area also has a black background
         scrollPane.getViewport().setOpaque(true);
         scrollPane.getViewport().setBackground(Color.BLACK);
 
@@ -228,17 +225,15 @@ public class ManagementDashboardFrame extends BaseFrame {
     private JPanel createReviewCard(Review review) {
         JPanel card = new JPanel();
         card.setLayout(new BorderLayout(10, 10));
-        // Set a dark background for each card to distinguish it from the main panel
         card.setBackground(new Color(25, 25, 25));
         card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(80, 80, 80)), // Darker border
+                BorderFactory.createLineBorder(new Color(80, 80, 80)),
                 BorderFactory.createEmptyBorder(15, 15, 15, 15)
         ));
 
         String stars = String.join("", Collections.nCopies(review.getRating(), "⭐"));
         JLabel ratingLabel = new JLabel(stars);
         ratingLabel.setFont(new Font("Dialog", Font.BOLD, 16));
-        // 4. Set the star color to orange
         ratingLabel.setForeground(Color.ORANGE);
 
         JTextArea commentArea = new JTextArea(review.getComment());

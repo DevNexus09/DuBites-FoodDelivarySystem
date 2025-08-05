@@ -52,7 +52,6 @@ public class RestaurantLoginFrame extends BaseFrame {
                 ImageIcon icon = new ImageIcon(new ImageIcon(getClass().getResource(restaurant.getImagePath())).getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH));
                 imageLabel.setIcon(icon);
             } catch (Exception e) {
-                // If image fails to load, show placeholder text
                 imageLabel.setText("Image not found");
                 imageLabel.setForeground(Color.WHITE);
             }
@@ -63,13 +62,11 @@ public class RestaurantLoginFrame extends BaseFrame {
         imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         panel.add(imageLabel, gbc);
 
-        // Restaurant Name
         JLabel nameLabel = new JLabel("Manage: " + restaurant.getName(), SwingConstants.CENTER);
         nameLabel.setFont(new Font("DialogInput", Font.BOLD, 22));
         nameLabel.setForeground(Color.WHITE);
         panel.add(nameLabel, gbc);
 
-        // PIN Label and Field
         JLabel pinLabel = new JLabel("Enter Your 4-Digit Security PIN", SwingConstants.CENTER);
         pinLabel.setForeground(Color.LIGHT_GRAY);
         panel.add(pinLabel, gbc);

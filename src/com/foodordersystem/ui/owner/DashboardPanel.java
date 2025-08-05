@@ -104,7 +104,7 @@ public class DashboardPanel extends JPanel {
 
         add(mainPanel, BorderLayout.CENTER);
 
-        refreshData(); // Initial data load
+        refreshData();
     }
 
     private List<Order> getFilteredOrders() {

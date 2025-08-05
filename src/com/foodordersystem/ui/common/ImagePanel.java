@@ -4,9 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
 
-/**
- * A reusable public JPanel that draws a background image.
- */
 public class ImagePanel extends JPanel {
     private Image backgroundImage;
     private float opacity;
@@ -37,7 +34,6 @@ public class ImagePanel extends JPanel {
             g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            // Set opacity and draw the image
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
             g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
             g2d.dispose();

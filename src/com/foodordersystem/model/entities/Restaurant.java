@@ -16,10 +16,10 @@ public class Restaurant implements Serializable {
     private final int delivaryCharge;
     private List<MenuItem> menu;
     private String imagePath;
-    private List<Order> orders; // Added to track orders
+    private List<Order> orders;
     private List<Review> reviews;
-    private int deliveryTime; // in minutes
-    private String priceRange; // e.g., "$", "$$", "$$$"
+    private int deliveryTime;
+    private String priceRange;
 
     public Restaurant(String name, String ownerUsername, String location, String pin, String imagePath, String cuisine, int deliveryTime, String priceRange) {
         this.name = name;
@@ -30,13 +30,13 @@ public class Restaurant implements Serializable {
         this.cuisine = cuisine;
         this.delivaryCharge = 15;
         this.menu = new ArrayList<>();
-        this.orders = new ArrayList<>(); // Initialize the orders list
+        this.orders = new ArrayList<>();
         this.reviews = new ArrayList<>();
         this.deliveryTime = deliveryTime;
         this.priceRange = priceRange;
     }
 
-    // Existing getters...
+
     public String getName() { return name; }
     public String getOwnerUsername() { return ownerUsername; }
     public String getLocation() { return location; }
@@ -48,7 +48,7 @@ public class Restaurant implements Serializable {
     public int getDeliveryTime() { return deliveryTime; }
     public String getPriceRange() { return priceRange; }
 
-    // New methods for orders
+
     public List<Order> getOrders() {
         return orders;
     }

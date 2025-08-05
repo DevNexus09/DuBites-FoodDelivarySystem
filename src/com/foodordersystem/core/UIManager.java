@@ -25,18 +25,16 @@ public class UIManager {
                 boolean selected = item.getCheckBox().isSelected();
                 item.getQuantityField().setEnabled(selected);
                 if (selected) {
-                    item.getQuantityField().setText("1"); // Default to 1 when selected
+                    item.getQuantityField().setText("1");
                     item.getQuantityField().requestFocus();
                 } else {
                     item.getQuantityField().setText("0");
                 }
             });
 
-            // Add KeyListener to the quantity field for numeric validation
             item.getQuantityField().addKeyListener(new KeyAdapter() {
                 public void keyTyped(KeyEvent evt) {
                     char iNumber = evt.getKeyChar();
-                    // Allow only digits, backspace, and delete
                     if (!Character.isDigit(iNumber) && iNumber != KeyEvent.VK_BACK_SPACE && iNumber != KeyEvent.VK_DELETE) {
                         evt.consume();
                     }

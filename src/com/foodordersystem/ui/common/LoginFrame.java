@@ -26,21 +26,21 @@ public class LoginFrame extends BaseFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Set a custom panel with a background image as the content pane
+
         ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/LoginFrameBg.png", 1.0f); // Opacity reduced
         backgroundPanel.setLayout(new GridBagLayout()); // Center the content
         setContentPane(backgroundPanel);
 
-        // Main login panel, made transparent to show the background
+
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setOpaque(false); // Make panel transparent
+        panel.setOpaque(false);
         panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // Add padding
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // --- Title ---
+
         JLabel titleLabel = new JLabel("Login as " + role);
         titleLabel.setFont(new Font("DialogInput", Font.BOLD, 22));
         titleLabel.setForeground(Color.WHITE);
@@ -54,7 +54,6 @@ public class LoginFrame extends BaseFrame {
         gbc.insets = new Insets(10, 10, 10, 10);
 
 
-        // --- Form Fields ---
         Font labelFont = new Font("DialogInput", Font.BOLD, 14);
         Color labelColor = Color.WHITE;
 
@@ -80,9 +79,8 @@ public class LoginFrame extends BaseFrame {
         gbc.gridx = 1;
         panel.add(passwordField, gbc);
 
-        // --- Buttons ---
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        buttonPanel.setOpaque(false); // Make button panel transparent
+        buttonPanel.setOpaque(false);
 
         JButton loginButton = new RoundedButton("Login");
         styleButton(loginButton, new Font("DialogInput", Font.BOLD, 14), new Dimension(120, 40), new Color(255, 102, 0), Color.WHITE);
@@ -100,10 +98,9 @@ public class LoginFrame extends BaseFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(buttonPanel, gbc);
 
-        // Add the login panel to the main background panel
         add(panel);
 
-        // --- Action Listeners ---
+      // Logging into particular user dashboards
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
@@ -150,7 +147,6 @@ public class LoginFrame extends BaseFrame {
 
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
 
-        // Reset to default
         UIManager.put("OptionPane.background", null);
         UIManager.put("Panel.background", null);
         UIManager.put("OptionPane.messageForeground", null);

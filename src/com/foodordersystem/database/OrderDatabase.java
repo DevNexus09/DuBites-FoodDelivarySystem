@@ -21,7 +21,6 @@ public class OrderDatabase {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ORDER_FILE))) {
             orders = (List<Order>) ois.readObject();
         } catch (FileNotFoundException e) {
-            // File doesn't exist yet, which is fine.
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -46,11 +45,9 @@ public class OrderDatabase {
                 .findFirst();
 
         if (existingOrderOpt.isPresent()) {
-            // Remove the old order and add the updated one
             orders.removeIf(o -> o.getOrderId().equals(orderToUpdate.getOrderId()));
             orders.add(orderToUpdate);
         } else {
-            // If for some reason it's not there, just add it.
             orders.add(orderToUpdate);
         }
         saveOrders();

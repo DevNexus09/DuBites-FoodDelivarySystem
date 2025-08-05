@@ -20,7 +20,6 @@ public class UserDatabase {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(USER_FILE))) {
             users = (List<User>) ois.readObject();
         } catch (FileNotFoundException e) {
-            // File doesn't exist yet, which is fine.
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }

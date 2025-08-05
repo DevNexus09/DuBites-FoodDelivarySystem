@@ -20,7 +20,6 @@ public class RestaurantDatabase {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(RESTAURANT_FILE))) {
             restaurants = (List<Restaurant>) ois.readObject();
         } catch (FileNotFoundException e) {
-            // File doesn't exist yet, which is fine on first run.
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -33,13 +32,6 @@ public class RestaurantDatabase {
             e.printStackTrace();
         }
     }
-
-    /**
-     * Adds a new restaurant or updates an existing one.
-     * A restaurant is uniquely identified by its owner.
-     *
-     * @param restaurant The restaurant to add or update.
-     */
     public void addRestaurant(Restaurant restaurant) {
         // Remove any existing restaurant owned by the same user.
         restaurants.removeIf(r -> r.getOwnerUsername().equals(restaurant.getOwnerUsername()));

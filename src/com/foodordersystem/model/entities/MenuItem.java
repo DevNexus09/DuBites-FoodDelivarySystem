@@ -23,7 +23,7 @@ public class MenuItem implements Serializable {
         this.price = price;
         this.category = category;
         this.quantity = 0;
-        this.available = true; // Items are available by default
+        this.available = true;
         reinitializeUIComponents();
     }
 

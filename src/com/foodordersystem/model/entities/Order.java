@@ -31,7 +31,7 @@ public class Order implements Serializable {
         this.customerUsername = customer.getUsername();
         this.customerName = customer.getName();
         this.customerAddress = customer.getAddress();
-        this.customerMobileNumber = customer.getMobileNumber(); // Set the mobile number
+        this.customerMobileNumber = customer.getMobileNumber();
         this.status = "Placed";
         this.orderDate = LocalDateTime.now();
     }
@@ -47,7 +47,7 @@ public class Order implements Serializable {
     public void calculateTotals() {
         subTotal = 0.0;
         for (MenuItem item : menuItems) {
-            item.syncQuantityFromTextField(); // Ensure quantity is up-to-date
+            item.syncQuantityFromTextField();
             if (item.isSelected()) {
                 subTotal += item.getCost();
             }
@@ -82,10 +82,6 @@ public class Order implements Serializable {
 
     public String getRiderUsername() {
         return riderUsername;
-    }
-
-    public void setRiderUsername(String riderUsername) {
-        this.riderUsername = riderUsername;
     }
 
     public List<MenuItem> getMenuItems() {

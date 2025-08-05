@@ -25,7 +25,7 @@ public class OrderHistoryFrame extends BaseFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/ManagementDashboardFrameBg.png", 1.0f);
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/CommonBg.png", 1.0f);
         backgroundPanel.setLayout(new BorderLayout());
         setContentPane(backgroundPanel);
 
@@ -35,6 +35,7 @@ public class OrderHistoryFrame extends BaseFrame {
         titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
         backgroundPanel.add(titleLabel, BorderLayout.NORTH);
 
+        //Gets orders of specific customers by filtering using username
         List<Order> customerOrders = new OrderDatabase().getAllOrders().stream()
                 .filter(order -> order.getCustomerUsername().equals(customer.getUsername()))
                 .collect(Collectors.toList());

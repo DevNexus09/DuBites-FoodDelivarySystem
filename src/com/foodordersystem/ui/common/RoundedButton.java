@@ -3,9 +3,6 @@ package com.foodordersystem.ui.common;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * A reusable public JButton with rounded corners.
- */
 public class RoundedButton extends JButton {
     public RoundedButton(String text) {
         super(text);

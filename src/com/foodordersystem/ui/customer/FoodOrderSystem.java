@@ -63,6 +63,7 @@ public class FoodOrderSystem extends BaseFrame {
         uiManager = new UIManager(menuItems);
     }
 
+    // repopulates quantities for reorder system
     private void repopulateOrder() {
         for (MenuItem pastItem : order.getMenuItems()) {
             for (MenuItem currentItem : restaurant.getMenu()) {
@@ -115,7 +116,7 @@ public class FoodOrderSystem extends BaseFrame {
         backgroundPanel.add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    // A custom circular button for quantity controls
+
     class CircularButton extends JButton {
         public CircularButton(String text) {
             super(text);
@@ -195,6 +196,7 @@ public class FoodOrderSystem extends BaseFrame {
             quantityPanel.add(quantityField);
             quantityPanel.add(plusButton);
 
+            //Defining quantity by + - button
             minusButton.addActionListener(e -> {
                 int quantity = Integer.parseInt(quantityField.getText());
                 if (quantity > 0) {
@@ -234,8 +236,8 @@ public class FoodOrderSystem extends BaseFrame {
         }
     }
 
+    // Making tabs for different category food items
     private JComponent createMenuPanel() {
-        // Temporarily set UIManager properties for the tabbed pane
         javax.swing.UIManager.put("TabbedPane.contentOpaque", false);
         javax.swing.UIManager.put("TabbedPane.background", new Color(0, 0, 0, 120));
         javax.swing.UIManager.put("TabbedPane.foreground", Color.WHITE);
@@ -250,6 +252,7 @@ public class FoodOrderSystem extends BaseFrame {
         tabbedPane.setFont(new Font("Dialog", Font.BOLD, 14));
 
 
+        // Sorting items category wise
         Map<String, List<MenuItem>> groupedMenu = restaurant.getMenu().stream()
                 .filter(MenuItem::isAvailable)
                 .collect(Collectors.groupingBy(MenuItem::getCategory));
@@ -264,8 +267,6 @@ public class FoodOrderSystem extends BaseFrame {
                 categoryPanel.add(new MenuItemCard(item));
                 categoryPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             }
-
-            // Add a glue component to push items to the top
             categoryPanel.add(Box.createVerticalGlue());
 
             JScrollPane scrollPane = new JScrollPane(categoryPanel);
@@ -284,6 +285,7 @@ public class FoodOrderSystem extends BaseFrame {
         return tabbedPane;
     }
 
+    // Order Bill Generation
     private JPanel createOrderPanel() {
         JPanel orderPanel = createTitledPanel("Your Order Summary");
         orderPanel.setLayout(new BorderLayout(10, 10));
@@ -317,6 +319,7 @@ public class FoodOrderSystem extends BaseFrame {
         return orderPanel;
     }
 
+    // Buttons
     private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         buttonPanel.setOpaque(false);
@@ -382,7 +385,7 @@ public class FoodOrderSystem extends BaseFrame {
         restaurant.addOrder(order);
         new RestaurantDatabase().addRestaurant(restaurant);
 
-        showSuccessDialog("Your order has been placed successfully! Thank you for choosing DuBites.");
+        showSuccessDialog("Your order has been placed successfully! Thank you for choosing "+ restaurant.getName());
         jbtnReview.setEnabled(true);
     }
 

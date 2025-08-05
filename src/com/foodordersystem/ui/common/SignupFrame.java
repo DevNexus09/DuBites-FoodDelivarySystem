@@ -21,21 +21,19 @@ public class SignupFrame extends BaseFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Use ImagePanel as the content pane for the background
         ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/CommonBg.png", 1.0f);
         backgroundPanel.setLayout(new GridBagLayout()); // To center the form
         setContentPane(backgroundPanel);
 
-        // Panel to hold the form components, made transparent
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setOpaque(false);
-        formPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // Add padding
+        formPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // --- Title ---
+
         JLabel titleLabel = new JLabel("Create Your Account");
         titleLabel.setFont(new Font("DialogInput", Font.BOLD, 28));
         titleLabel.setForeground(Color.WHITE);
@@ -118,6 +116,7 @@ public class SignupFrame extends BaseFrame {
         });
     }
 
+    //Data validation for proper user information
     private boolean validateInput(String name, String dob, String mobile, String username, String password, String address) {
         if (name.isEmpty() || username.isEmpty() || password.isEmpty() || address.isEmpty() || dob.isEmpty() || mobile.isEmpty()) {
             showErrorDialog("All fields are required!");
@@ -137,9 +136,6 @@ public class SignupFrame extends BaseFrame {
         return true;
     }
 
-    /**
-     * Helper method to add a labeled component to the form.
-     */
     private void addField(JPanel panel, GridBagConstraints gbc, int yPos, String labelText, Component component, Font font, Color color) {
         JLabel label = new JLabel(labelText);
         label.setFont(font);
@@ -170,7 +166,6 @@ public class SignupFrame extends BaseFrame {
 
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
 
-        // Reset to default
         UIManager.put("OptionPane.background", null);
         UIManager.put("Panel.background", null);
         UIManager.put("OptionPane.messageForeground", null);

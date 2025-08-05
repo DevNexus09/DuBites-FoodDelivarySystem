@@ -102,7 +102,7 @@ public class OrderPickupFrame extends BaseFrame {
     }
 
     private JPanel createOrderItemsPanel() {
-        JPanel panel = createSectionPanel("Ordered Items", new String[]{}); // Empty for now
+        JPanel panel = createSectionPanel("Ordered Items", new String[]{});
         DefaultListModel<String> listModel = new DefaultListModel<>();
         if (order.getMenuItems() != null) {
             for (MenuItem item : order.getMenuItems()) {
@@ -171,7 +171,7 @@ public class OrderPickupFrame extends BaseFrame {
                 List<Order> orders = restaurant.getOrders();
                 Optional<Order> orderToUpdate = orders.stream().filter(o -> o.getOrderId().equals(order.getOrderId())).findFirst();
                 orderToUpdate.ifPresent(o -> o.setStatus("Delivered"));
-                restaurantDb.addRestaurant(restaurant); // This will update the restaurant in the database
+                restaurantDb.addRestaurant(restaurant);
             }
 
             RiderHistory.DeliveryRecord record = new RiderHistory.DeliveryRecord(order.getOrderId(), order.getRestaurantName(), order.getDeliveryCharge());
@@ -186,7 +186,7 @@ public class OrderPickupFrame extends BaseFrame {
                     JOptionPane.INFORMATION_MESSAGE
             );
 
-            dashboard.refreshOrderList(); // Refresh the dashboard list
+            dashboard.refreshOrderList();
             dashboard.updateDeliveryCount();
             dispose();
         }
