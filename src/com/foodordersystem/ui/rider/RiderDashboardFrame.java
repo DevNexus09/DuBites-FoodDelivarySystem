@@ -45,7 +45,7 @@ public class RiderDashboardFrame extends BaseFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/ManagementDashboardFrameBg.png", 0.9f);
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/RiderDashboardFrameBg.png", 1.0f);
         backgroundPanel.setLayout(new BorderLayout());
         setContentPane(backgroundPanel);
 

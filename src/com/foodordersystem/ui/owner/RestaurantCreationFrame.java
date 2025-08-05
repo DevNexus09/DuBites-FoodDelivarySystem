@@ -44,7 +44,7 @@ public class RestaurantCreationFrame extends BaseFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/ManagementDashboardFrameBg.png", 1.0f);
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/CommonBg.png", 1.0f);
         backgroundPanel.setLayout(new BorderLayout(10, 10));
         backgroundPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         setContentPane(backgroundPanel);
@@ -121,7 +121,8 @@ public class RestaurantCreationFrame extends BaseFrame {
         JTextField itemPriceField = new JTextField(5);
         JTextField itemCategoryField = new JTextField(10);
         JButton addItemButton = new RoundedButton("Add");
-        addItemButton.setForeground(new Color(255, 102,0));
+        addItemButton.setForeground(Color.WHITE);
+        addItemButton.setBackground(new Color(255, 102,0));
 
         menuItemInputPanel.add(new JLabel("Item:") {{ setForeground(Color.WHITE); }});
         menuItemInputPanel.add(itemNameField);
@@ -138,7 +139,8 @@ public class RestaurantCreationFrame extends BaseFrame {
         bottomPanel.setOpaque(false);
         JButton createRestaurantButton = new RoundedButton("Create Restaurant");
         JButton backButton = new RoundedButton("Back");
-        createRestaurantButton.setForeground(new Color(255, 102,0));
+        createRestaurantButton.setForeground(Color.WHITE);
+        createRestaurantButton.setBackground(new Color(255, 102,0));
         bottomPanel.add(createRestaurantButton);
         bottomPanel.add(backButton);
 

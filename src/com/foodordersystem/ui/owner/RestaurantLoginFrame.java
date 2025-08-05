@@ -15,7 +15,7 @@ public class RestaurantLoginFrame extends BaseFrame {
     private final Restaurant restaurant;
 
     public RestaurantLoginFrame(User owner) {
-        super("Manage Restaurant Login", 450, 550);
+        super("Restaurant Login", 450, 550);
         this.owner = owner;
         this.restaurant = new RestaurantDatabase().findRestaurantByOwner(owner.getUsername());
         initComponents();
@@ -26,7 +26,7 @@ public class RestaurantLoginFrame extends BaseFrame {
         setLocationRelativeTo(null);
 
         // Use a background panel
-        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/SignUpFrameBg.png", 1.0f);
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/CommonBg.png", 1.0f);
         backgroundPanel.setLayout(new GridBagLayout());
         setContentPane(backgroundPanel);
 
@@ -86,7 +86,7 @@ public class RestaurantLoginFrame extends BaseFrame {
         buttonPanel.setOpaque(false);
         JButton loginButton = new RoundedButton("Login to Manage");
         JButton backButton = new RoundedButton("Back");
-        loginButton.setForeground(new Color(255, 102,0));
+        loginButton.setBackground(new Color(255, 102,0));
         buttonPanel.add(loginButton);
         buttonPanel.add(backButton);
 
@@ -99,7 +99,6 @@ public class RestaurantLoginFrame extends BaseFrame {
         loginButton.addActionListener(e -> {
             String enteredPin = new String(pinField.getPassword());
             if (restaurant.getPin().equals(enteredPin)) {
-                showSuccessDialog("Login successful!");
                 new ManagementDashboardFrame(restaurant).setVisible(true);
                 dispose();
             } else {

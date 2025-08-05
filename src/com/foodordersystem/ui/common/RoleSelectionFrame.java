@@ -16,7 +16,7 @@ public class RoleSelectionFrame extends BaseFrame {
         setLocationRelativeTo(null);
 
         // Use the custom ImagePanel as the content pane for the background effect
-        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/RoleSelectionFrameBg.png", 1.0f);
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/CommonBg.png", 1.0f);
         backgroundPanel.setLayout(new GridBagLayout());
         setContentPane(backgroundPanel);
 
@@ -44,7 +44,7 @@ public class RoleSelectionFrame extends BaseFrame {
         Dimension regularButtonSize = new Dimension(120, 50);
         Dimension backButtonSize = new Dimension(100, 40); // Smaller size for the back button
         Color buttonColor = new Color(255, 102, 0);
-        Color backButtonColor = new Color(49, 49, 49);
+        Color backButtonColor = new Color(77, 76, 76);
         Color buttonTextColor = Color.WHITE;
 
         // Create and style the buttons

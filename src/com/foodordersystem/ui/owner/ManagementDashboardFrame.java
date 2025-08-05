@@ -165,6 +165,10 @@ public class ManagementDashboardFrame extends BaseFrame {
         styleButton(deleteButton);
         styleButton(updateButton);
         styleButton(toggleAvailabilityButton);
+        addButton.setBackground(new Color(0, 122, 204));
+        deleteButton.setBackground(new Color(45, 137, 45));
+        updateButton.setBackground(new Color(255, 153, 0));
+        toggleAvailabilityButton.setBackground(new Color(192, 57, 43));
 
         menuActionPanel.add(addButton);
         menuActionPanel.add(deleteButton);
@@ -182,7 +186,8 @@ public class ManagementDashboardFrame extends BaseFrame {
 
     private JPanel createFeedbackPanel() {
         JPanel feedbackPanel = new JPanel(new BorderLayout(20, 20));
-        feedbackPanel.setOpaque(false);
+        // 1. Set the main panel background to black
+        feedbackPanel.setBackground(Color.BLACK);
         feedbackPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JLabel title = new JLabel("Customer Feedback", SwingConstants.CENTER);
@@ -191,7 +196,8 @@ public class ManagementDashboardFrame extends BaseFrame {
         feedbackPanel.add(title, BorderLayout.NORTH);
 
         JPanel reviewsContainer = new JPanel();
-        reviewsContainer.setOpaque(false);
+        // 2. Set the container for reviews to have a black background
+        reviewsContainer.setBackground(Color.BLACK);
         reviewsContainer.setLayout(new BoxLayout(reviewsContainer, BoxLayout.Y_AXIS));
 
         List<Review> reviews = restaurant.getReviews();
@@ -210,6 +216,10 @@ public class ManagementDashboardFrame extends BaseFrame {
 
         JScrollPane scrollPane = new JScrollPane(reviewsContainer);
         styleScrollPane(scrollPane);
+        // 3. Ensure the scrollable area also has a black background
+        scrollPane.getViewport().setOpaque(true);
+        scrollPane.getViewport().setBackground(Color.BLACK);
+
         feedbackPanel.add(scrollPane, BorderLayout.CENTER);
 
         return feedbackPanel;
@@ -218,15 +228,18 @@ public class ManagementDashboardFrame extends BaseFrame {
     private JPanel createReviewCard(Review review) {
         JPanel card = new JPanel();
         card.setLayout(new BorderLayout(10, 10));
-        card.setOpaque(false);
+        // Set a dark background for each card to distinguish it from the main panel
+        card.setBackground(new Color(25, 25, 25));
         card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(255, 255, 255, 50)),
+                BorderFactory.createLineBorder(new Color(80, 80, 80)), // Darker border
                 BorderFactory.createEmptyBorder(15, 15, 15, 15)
         ));
 
         String stars = String.join("", Collections.nCopies(review.getRating(), "⭐"));
         JLabel ratingLabel = new JLabel(stars);
         ratingLabel.setFont(new Font("Dialog", Font.BOLD, 16));
+        // 4. Set the star color to orange
+        ratingLabel.setForeground(Color.ORANGE);
 
         JTextArea commentArea = new JTextArea(review.getComment());
         commentArea.setOpaque(false);

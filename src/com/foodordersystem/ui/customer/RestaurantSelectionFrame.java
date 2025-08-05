@@ -7,6 +7,9 @@ import com.foodordersystem.ui.common.BaseFrame;
 import com.foodordersystem.ui.common.ImagePanel;
 import com.foodordersystem.ui.common.RoleSelectionFrame;
 import com.foodordersystem.ui.common.RoundedButton;
+import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.plaf.basic.BasicComboPopup;
+import javax.swing.plaf.basic.ComboPopup;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -43,7 +46,7 @@ public class RestaurantSelectionFrame extends BaseFrame {
         setLocationRelativeTo(null);
 
         // Main background
-        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/SignUpFrameBg.png", 1.0f);
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/RestaurantSelectionFrameBg.png", 1.0f);
         backgroundPanel.setLayout(new BorderLayout());
         setContentPane(backgroundPanel);
 
@@ -143,6 +146,7 @@ public class RestaurantSelectionFrame extends BaseFrame {
 
         JButton orderHistoryButton = new RoundedButton("Order History");
         styleHeaderButton(orderHistoryButton);
+        orderHistoryButton.setBackground(new Color(5, 93, 46));
         orderHistoryButton.addActionListener(e -> {
             new OrderHistoryFrame(customer).setVisible(true);
             dispose();
@@ -189,7 +193,6 @@ public class RestaurantSelectionFrame extends BaseFrame {
     }
 
     private void updateRestaurantPanel() {
-        // Use SwingUtilities.invokeLater to ensure thread safety with UI updates
         SwingUtilities.invokeLater(() -> {
             restaurantPanel.removeAll();
             if (filteredRestaurants.isEmpty()) {
@@ -221,10 +224,19 @@ public class RestaurantSelectionFrame extends BaseFrame {
     }
 
     private void styleComboBox(JComboBox<String> comboBox) {
+        // Apply the custom UI to control the look and feel
+        comboBox.setUI(new CustomComboBoxUI());
+
         comboBox.setFont(new Font("Dialog", Font.PLAIN, 14));
         comboBox.setBackground(new Color(50, 50, 50));
         comboBox.setForeground(Color.WHITE);
         comboBox.setBorder(BorderFactory.createLineBorder(new Color(100, 100, 100)));
+
+        // Make the renderer transparent so the custom background shows through
+        Object cellRenderer = comboBox.getRenderer();
+        if (cellRenderer instanceof JComponent) {
+            ((JComponent) cellRenderer).setOpaque(false);
+        }
     }
 
     private void styleHeaderButton(JButton button) {
@@ -234,6 +246,33 @@ public class RestaurantSelectionFrame extends BaseFrame {
         button.setFocusPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.setPreferredSize(new Dimension(120, 30));
+    }
+
+    private static class CustomComboBoxUI extends BasicComboBoxUI {
+        @Override
+        protected JButton createArrowButton() {
+            JButton button = new JButton();
+            button.setBackground(new Color(50, 50, 50));
+            button.setBorder(BorderFactory.createEmptyBorder());
+            return button;
+        }
+
+        @Override
+        public void paintCurrentValueBackground(Graphics g, Rectangle bounds, boolean hasFocus) {
+            g.setColor(new Color(50, 50, 50));
+            g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        }
+
+        @Override
+        protected ComboPopup createPopup() {
+            BasicComboPopup popup = (BasicComboPopup) super.createPopup();
+            popup.getList().setBackground(new Color(60, 63, 65));
+            popup.getList().setForeground(Color.WHITE);
+            popup.getList().setSelectionBackground(Color.ORANGE);
+            popup.getList().setSelectionForeground(Color.BLACK);
+            popup.setBorder(BorderFactory.createLineBorder(new Color(100, 100, 100)));
+            return popup;
+        }
     }
 
     private class RestaurantCardPanel extends JPanel {

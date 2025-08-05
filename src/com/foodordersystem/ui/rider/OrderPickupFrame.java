@@ -36,7 +36,7 @@ public class OrderPickupFrame extends BaseFrame {
         setLocationRelativeTo(null);
         setResizable(false);
 
-        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/ManagementDashboardFrameBg.png", 0.9f);
+        ImagePanel backgroundPanel = new ImagePanel("/com/foodordersystem/Resources/CommonBg.png", 1.0f);
         backgroundPanel.setLayout(new BorderLayout(10, 10));
         backgroundPanel.setBorder(BorderFactory.createEmptyBorder(15,15,15,15));
         setContentPane(backgroundPanel);
