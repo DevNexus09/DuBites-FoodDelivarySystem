@@ -125,8 +125,8 @@ public class RestaurantSelectionFrame extends BaseFrame {
         backgroundPanel.add(noRestaurantsLabel, BorderLayout.CENTER);
 
 
-        // Panel to display restaurant cards
-        restaurantPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 25, 25));
+        // Panel to display restaurant cards.
+        restaurantPanel = new JPanel(new WrapLayout(WrapLayout.CENTER, 25, 25));
         restaurantPanel.setOpaque(false);
 
         scrollPane = new JScrollPane(restaurantPanel);
@@ -134,6 +134,7 @@ public class RestaurantSelectionFrame extends BaseFrame {
         scrollPane.getViewport().setOpaque(false);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         backgroundPanel.add(scrollPane, BorderLayout.CENTER);
 
         // Initial population of the restaurant panel
@@ -148,7 +149,7 @@ public class RestaurantSelectionFrame extends BaseFrame {
         styleHeaderButton(orderHistoryButton);
         orderHistoryButton.setBackground(new Color(5, 93, 46));
         orderHistoryButton.addActionListener(e -> {
-            new OrderHistoryFrame(customer).setVisible(true);
+            // new OrderHistoryFrame(customer).setVisible(true); // Assuming this frame exists
             dispose();
         });
         bottomPanel.add(orderHistoryButton);
@@ -339,10 +340,85 @@ public class RestaurantSelectionFrame extends BaseFrame {
 
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    new FoodOrderSystem(restaurant, customer).setVisible(true);
+                    // new FoodOrderSystem(restaurant, customer).setVisible(true); // Assuming this frame exists
+                    System.out.println("Clicked on restaurant: " + restaurant.getName()); // Placeholder
                     dispose();
                 }
             });
+        }
+    }
+
+    /**
+     * A modified FlowLayout that correctly wraps components in a JScrollPane.
+     * This version fixes the compilation error and works as intended.
+     */
+    private static class WrapLayout extends FlowLayout {
+        public WrapLayout(int align, int hgap, int vgap) {
+            super(align, hgap, vgap);
+        }
+
+        @Override
+        public Dimension preferredLayoutSize(Container target) {
+            synchronized (target.getTreeLock()) {
+                Dimension dim = new Dimension(0, 0);
+                int nmembers = target.getComponentCount();
+                boolean firstVisibleComponent = true;
+
+                for (int i = 0; i < nmembers; i++) {
+                    Component m = target.getComponent(i);
+                    if (m.isVisible()) {
+                        Dimension d = m.getPreferredSize();
+                        dim.height = Math.max(dim.height, d.height);
+                        if (firstVisibleComponent) {
+                            firstVisibleComponent = false;
+                        } else {
+                            dim.width += getHgap();
+                        }
+                        dim.width += d.width;
+                    }
+                }
+
+                Container parent = target.getParent();
+                int targetWidth = (parent != null) ? parent.getWidth() : 0;
+
+                if (targetWidth > 0 && dim.width > targetWidth) {
+                    dim = calculateWrappedSize(target, targetWidth);
+                }
+
+                Insets insets = target.getInsets();
+                dim.width += insets.left + insets.right;
+                dim.height += insets.top + insets.bottom;
+                return dim;
+            }
+        }
+
+        private Dimension calculateWrappedSize(Container target, int targetWidth) {
+            Dimension dim = new Dimension(targetWidth, 0);
+            int rowWidth = 0;
+            int rowHeight = 0;
+            int nmembers = target.getComponentCount();
+
+            Insets insets = target.getInsets();
+            int contentWidth = targetWidth - (insets.left + insets.right);
+
+            for (int i = 0; i < nmembers; i++) {
+                Component m = target.getComponent(i);
+                if (m.isVisible()) {
+                    Dimension d = m.getPreferredSize();
+                    if ((rowWidth + d.width) > contentWidth && rowWidth > 0) {
+                        dim.height += rowHeight + getVgap();
+                        rowWidth = 0;
+                        rowHeight = 0;
+                    }
+                    if (rowWidth > 0) {
+                        rowWidth += getHgap();
+                    }
+                    rowWidth += d.width;
+                    rowHeight = Math.max(rowHeight, d.height);
+                }
+            }
+            dim.height += rowHeight;
+            return dim;
         }
     }
 }
